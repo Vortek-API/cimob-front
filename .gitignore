@@ -1,0 +1,15 @@
+# Node modules dentro do cimob
+/cimob/node_modules/
+
+# Build / cache do Nuxt dentro do cimob
+/cimob/.nuxt/
+/cimob/dist/
+
+# Environment files dentro do cimob
+/cimob/.env
+/cimob/.env.*.local
+
+# SQLite usado pelo @nuxt/content dentro do cimob
+/cimob/*.db
+/cimob/*.sqlite
+/cimob/*.sqlite3
