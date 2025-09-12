@@ -1,5 +1,75 @@
-Bem-vindo ao repositório do front-end do projeto de **monitoramento de tráfego da cidade de São José dos Campos**, desenvolvido pela equipe **VORTEK**.  
+# Nuxt Minimal Starter
 
-Este sistema foi criado para **monitorar indicadores e parâmetros de controle** previamente definidos, fornecendo visualizações claras e interativas sobre o trânsito da cidade. Com dashboards lúdicos, mapas georreferenciados e alertas automáticos, o usuário consegue acompanhar em tempo real os níveis de tráfego e tomar decisões rápidas e informadas.  
+Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-O front-end foi desenvolvido utilizando **tecnologias modernas de desenvolvimento web**, garantindo uma interface **intuitiva, responsiva e de fácil manutenção**.
+## Setup
+
+Make sure to install dependencies:
+
+```bash
+# npm
+npm install
+
+# pnpm
+pnpm install
+
+# yarn
+yarn install
+
+# bun
+bun install
+```
+
+## Development Server
+
+Start the development server on `http://localhost:3000`:
+
+```bash
+# npm
+npm run dev
+
+# pnpm
+pnpm dev
+
+# yarn
+yarn dev
+
+# bun
+bun run dev
+```
+
+## Production
+
+Build the application for production:
+
+```bash
+# npm
+npm run build
+
+# pnpm
+pnpm build
+
+# yarn
+yarn build
+
+# bun
+bun run build
+```
+
+Locally preview production build:
+
+```bash
+# npm
+npm run preview
+
+# pnpm
+pnpm preview
+
+# yarn
+yarn preview
+
+# bun
+bun run preview
+```
+
+Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

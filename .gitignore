@@ -1,15 +1,24 @@
-# Node modules dentro do cimob
-/cimob/node_modules/
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
 
-# Build / cache do Nuxt dentro do cimob
-/cimob/.nuxt/
-/cimob/dist/
+# Node dependencies
+node_modules
 
-# Environment files dentro do cimob
-/cimob/.env
-/cimob/.env.*.local
+# Logs
+logs
+*.log
 
-# SQLite usado pelo @nuxt/content dentro do cimob
-/cimob/*.db
-/cimob/*.sqlite
-/cimob/*.sqlite3
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
