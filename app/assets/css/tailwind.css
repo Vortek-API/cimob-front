@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Debug: facilita ver se o CSS está carregando */
+html { border-top: 4px solid #10b981; }
