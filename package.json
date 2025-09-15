@@ -5,6 +5,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "tw:dev": "tailwindcss -i app/assets/css/tailwind.css -o app/assets/css/tw.css --content './app/**/*.{vue,js,ts}' -w",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"

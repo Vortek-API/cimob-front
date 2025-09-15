@@ -1,6 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Ruda:wght@400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Debug: facilita ver se o CSS está carregando */
-html { border-top: 4px solid #10b981; }
