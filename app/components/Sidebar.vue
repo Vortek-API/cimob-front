@@ -65,6 +65,7 @@ const props = withDefaults(defineProps<{
   items: () => [
     { label: 'Mapas', to: '/home' },
     { label: 'Base de dados', to: '/database' },
+    { label: 'Usuários', to: '/users' },
   ],
 })
 
