@@ -1,11 +1,5 @@
 <template>
   <section class="space-y-8">
-    <!-- Título -->
-    <h1 class="text-4xl md:text-5xl font-extrabold tracking-wide text-blue-900">
-      INDICADORES DA CIDADE
-    </h1>
-
-    <!-- Cartões de indicadores -->
     <div class="flex flex-wrap gap-6">
       <div
         v-for="card in cards"
