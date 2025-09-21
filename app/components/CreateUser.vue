@@ -27,6 +27,13 @@ const toast = useToast()
 async function onSubmit(event: FormSubmitEvent<typeof state>) {
   toast.add({ title: 'Success', description: 'The form has been submitted.', color: 'success' })
   console.log(event.data)
+  // Here you can handle the form submission, e.g., send data to an API
+  // Example:
+  // try {
+  //   await api.post('/users', event.data)
+  //   toast.add({ title: 'User Created', description: 'The user has been created successfully.', color: 'success' })
+  // } catch (error) {
+  //   toast.add({ title: 'Error', description: 'There was an error creating the user.', color: 'error' })
 }
 </script>
 
