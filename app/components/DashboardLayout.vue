@@ -1,16 +1,16 @@
 <template>
-  <div class="flex min-h-screen">
-    <Sidebar />
-    <main class="flex-1 bg-gray-100 p-8 overflow-auto">
-      <ComponenteIndicadores />
+  <main class="flex-1 bg-gray-100 p-8 overflow-auto min-h-screen">
+    <ComponenteIndicadores />
+    <div class="mt-6">
       <MenuRegiao />
-    </main>
-  </div>
+    </div>
+  </main>
   
 </template>
 
 <script setup lang="ts">
-import Sidebar from '~/components/Sidebar.vue'
+import ComponenteIndicadores from '~/components/ComponenteIndicadores.vue'
+import MenuRegiao from '~/components/MenuRegiao.vue'
 </script>
 
 <style scoped>

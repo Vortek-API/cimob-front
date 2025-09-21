@@ -1,10 +1,11 @@
-
 <template>
-  <DashboardLayout>
-    <h1 class="text-2xl font-bold mb-4">Dashboard Home</h1>
-  </DashboardLayout>
+  <div class="flex min-h-screen">
+    <Sidebar />
+    <DashboardLayout />
+  </div>
 </template>
 
 <script setup lang="ts">
+import Sidebar from '~/components/Sidebar.vue'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 </script>
