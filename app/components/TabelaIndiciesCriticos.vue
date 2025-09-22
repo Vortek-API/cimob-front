@@ -1,43 +1,60 @@
 <script setup lang="ts">
+const props = withDefaults(defineProps<{ maxHeight?: string; limit?: number }>(), {
+  limit: 3
+})
+
 const data = ref([
   {
-    id: '4600',
-    date: '2024-03-11T15:30:00',
-    status: 'paid',
-    email: 'james.anderson@example.com',
-    amount: 594
+    endereco: 'Rua das Flores, 123',
+    regiao: 'Norte',
+    velocidade: 85,
   },
   {
-    id: '4599',
-    date: '2024-03-11T10:10:00',
-    status: 'failed',
-    email: 'mia.white@example.com',
-    amount: 276
+    endereco: 'Avenida Central, 456',
+    regiao: 'Sul',
+    velocidade: 90,
   },
   {
-    id: '4598',
-    date: '2024-03-11T08:50:00',
-    status: 'refunded',
-    email: 'william.brown@example.com',
-    amount: 315
+    endereco: 'Travessa das Acácias, 789',
+    regiao: 'Leste',
+    velocidade: 78,
   },
   {
-    id: '4597',
-    date: '2024-03-10T19:45:00',
-    status: 'paid',
-    email: 'emma.davis@example.com',
-    amount: 529
+    endereco: 'Rua do Sol, 101',
+    regiao: 'Oeste',
+    velocidade: 92,
   },
   {
-    id: '4596',
-    date: '2024-03-10T15:55:00',
-    status: 'paid',
-    email: 'ethan.harris@example.com',
-    amount: 639
-  }
+    endereco: 'Avenida das Estrelas, 202',
+    regiao: 'Centro',
+    velocidade: 88,
+  },
 ])
+
+const columns = [
+  { accessorKey: 'endereco', header: 'Endereço do radar' },
+  { accessorKey: 'regiao', header: 'Região' },
+  { accessorKey: 'velocidade', header: 'Velocidade' }
+]
+
+const tableUi = {
+  root: 'w-full',
+  base: 'w-full table-auto',
+  thead: 'bg-white',
+  tbody: 'bg-white',
+  // Tornar o cabeçalho realmente "sticky" nos navegadores (aplicar no th, não apenas no thead)
+  th: 'sticky top-0 z-10 bg-white text-sm font-semibold text-gray-700 px-4 py-3',
+  td: 'px-4 py-3 text-gray-800',
+  tr: 'border-b border-gray-200 last:border-b-0',
+  separator: 'border-t border-gray-200'
+}
+
+// Apenas N linhas visíveis (além do header)
+const visibleData = computed(() => data.value.slice(0, props.limit))
 </script>
 
 <template>
-  <UTable :data="data" class="flex-1" />
+  <div class="bg-white rounded-xl ring-1 ring-gray-200 shadow">
+    <UTable :data="visibleData" :columns="columns" :ui="tableUi" />
+  </div>
 </template>
