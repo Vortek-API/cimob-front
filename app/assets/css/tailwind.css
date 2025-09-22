@@ -1,11 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Ruda:wght@400;500;600;700;800;900&display=swap');
+/* Ensure Nuxt UI tokens + keyframes are processed by Tailwind v4 */
+@import "@nuxt/ui/runtime/index.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  body {
-    font-family: 'Ruda', sans-serif;
-  }
+/* Tailwind CSS v4 theme overrides */
+@theme {
+  --font-sans: "Ruda", ui-sans-serif, system-ui, sans-serif;
 }
