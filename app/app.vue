@@ -17,7 +17,7 @@ useHead({
     class: 'font-sans'
   },
   bodyAttrs: {
-    class: 'font-sans antialiased bg-gray-100'
+    class: 'font-sans antialiased bg-gray-100 overflow-hidden'
   }
 })
 </script>
