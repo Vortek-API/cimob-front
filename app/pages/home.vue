@@ -6,6 +6,9 @@
         INDICADORES DA CIDADE
       </h1>
       <DashboardLayout  class="mt-12"/>
+      <h1 class=" bg-gray-100 text-4xl text-blue-900">
+        Índices críticos
+      </h1>
     </div>
   </div>
 </template>

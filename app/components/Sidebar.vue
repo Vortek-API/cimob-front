@@ -1,13 +1,13 @@
 <template>
-  <aside class="w-72 min-h-screen bg-blue-100 border-r border-blue-200 flex flex-col select-none relative text-black">
+  <aside class="w-72 h-screen overflow-y-auto bg-blue-100 border-r border-blue-200 flex flex-col select-none relative text-black">
     <!-- Brand -->
-    <div class="px-6 pt-6 pb-4 flex items-center">
-      <img src="/images/cimob.png" alt="CIMOB" class="h-24 object-contain" />
+    <div class="px-6 pt-4 pb-3 flex items-center">
+      <img src="/images/cimob.png" alt="CIMOB" class="h-16 object-contain" />
     </div>
     <div class="-ml-6 mr-10 border-t-4 border-blue-900" />
 
     <!-- Navigation -->
-    <nav class="flex-1 p-4 space-y-1 mt-6">
+    <nav class="flex-1 p-3 space-y-1 mt-4">
       <template v-for="item in items" :key="item.label">
         <NuxtLink
           v-if="item.to"
@@ -28,7 +28,7 @@
     </nav>
 
     <!-- Footer -->
-    <div class="mt-auto p-6 text-sm text-black space-y-4">
+    <div class="mt-auto p-4 text-sm text-black space-y-3">
       <div>
         <div class="opacity-70">Última atualização:</div>
         <div class="font-medium">{{ formattedUpdatedAt }}</div>
