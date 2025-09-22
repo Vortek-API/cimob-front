@@ -7,10 +7,10 @@
           INDICADORES DA CIDADE
         </h1>
         <DashboardLayout class="mt-8"/>
-        <h1 class="text-4xl md:text-4xl font-bold tracking-wide text-blue-900 mt-8">
+        <h1 class="text-4xl md:text-4xl font-bold tracking-wide text-blue-900">
           Índices críticos
         </h1>
-        <TabelaIndiciesCriticos class="mt-6 mb-12"/>
+        <TabelaIndiciesCriticos class="mt-6 mb-12" max-height="calc(100vh - 420px)"/>
       </div>
     </div>
   </div>
