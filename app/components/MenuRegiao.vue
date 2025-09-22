@@ -1,25 +1,38 @@
 <script setup lang="ts">
 const items = ref([
   {
-    label: 'Backlog',
-    value: 'backlog'
+    label: 'Norte',
+    value: 'norte'
   },
   {
-    label: 'Todo',
-    value: 'todo'
+    label: 'Sul',
+    value: 'sul'
   },
   {
-    label: 'In Progress',
-    value: 'in_progress'
+    label: 'Leste',
+    value: 'leste'
   },
   {
-    label: 'Done',
-    value: 'done'
+    label: 'Oeste',
+    value: 'oeste'
+  },
+  {
+    label: 'Centro',
+    value: 'centro'
+  },
+  {
+    label: 'Cidade',
+    value: 'cidade'
   }
 ])
-const value = ref('backlog')
+const value = ref('Filtrar por região')
 </script>
 
 <template>
-  <USelect v-model="value" :items="items" class="w-48" />
+  <USelect
+    v-model="value"
+    :items="items"
+    color="blue"
+    class="mt-8 w-80 h-14 rounded-2xl text-lg"
+  />
 </template>

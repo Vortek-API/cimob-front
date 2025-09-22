@@ -5,11 +5,12 @@
         <img src="/images/mapaSjc.png" alt="Mapa SJC" class="w-full h-full object-contain" decoding="async" />
       </div>
 
-      <!-- Indicadores e filtro -->
       <div class="flex-1">
-        <ComponenteIndicadores />
-        <div class="mt-6">
-          <MenuRegiao />
+        <div class="w-fit">
+          <ComponenteIndicadores />
+          <div class="mt-4 flex justify-end w-full">
+            <MenuRegiao />
+          </div>
         </div>
       </div>
     </div>
