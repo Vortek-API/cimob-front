@@ -1,19 +1,20 @@
 <template>
   <div class="flex min-h-screen bg-gray-100"> 
     <Sidebar />
-    <div class="flex-1 ml-18">
-      <h1 class=" bg-gray-100 text-4xl md:text-5xl font-bold tracking-wide text-blue-900 mt-18">
-        INDICADORES DA CIDADE
-      </h1>
-      <DashboardLayout  class="mt-12"/>
-      <h1 class=" bg-gray-100 text-4xl text-blue-900">
-        Índices críticos
-      </h1>
+    <div class="flex-1">
+      <div class="px-8 md:px-10 mt-8 max-w-6xl mx-auto">
+        <h1 class="text-4xl md:text-5xl font-bold tracking-wide text-blue-900">
+          INDICADORES DA CIDADE
+        </h1>
+        <DashboardLayout class="mt-8"/>
+        <h1 class="text-4xl md:text-4xl font-bold tracking-wide text-blue-900 mt-8">
+          Índices críticos
+        </h1>
+        <TabelaIndiciesCriticos class="mt-6 mb-12"/>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import Sidebar from '~/components/Sidebar.vue'
-import DashboardLayout from '~/components/DashboardLayout.vue'
 </script>

@@ -1,14 +1,16 @@
 <template>
-  <main class="flex-1 bg-gray-100 p-4 md:p-6 h-screen overflow-hidden">
-    <div class="flex items-start gap-6 h-full">
-      <div class="aspect-[3/4] h-[48vh] md:h-[52vh] lg:h-[54vh] w-auto">
-        <img src="/images/mapaSjc.png" alt="Mapa SJC" class="w-auto h-full object-contain" decoding="async" />
-      </div>
+  <main class="flex-1 bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[320px_1fr] xl:grid-cols-[320px_1fr] gap-8 items-start">
+        <div class="w-full md:-mt-2">
+          <div class="aspect-[3/4] w-full overflow-hidden">
+            <img src="/images/mapaSjc.png" alt="Mapa SJC" class="w-full h-full object-contain object-left -ml-4 md:-ml-6" decoding="async" />
+          </div>
+        </div>
 
-      <div class="flex-1">
-        <div class="w-fit max-w-full">
+        <div class="w-full max-w-[860px]">
           <ComponenteIndicadores />
-          <div class="mt-2 flex justify-end w-full">
+          <div class="mt-3 flex justify-end">
             <MenuRegiao />
           </div>
         </div>

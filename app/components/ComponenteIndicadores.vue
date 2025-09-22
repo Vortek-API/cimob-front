@@ -1,18 +1,18 @@
 <template>
   <section class="space-y-8">
-    <div class="flex flex-wrap gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div
         v-for="card in cards"
         :key="card.id"
-        class="w-64 bg-white rounded-xl p-5 ring-1 ring-gray-200 shadow-[0_6px_0_0_rgba(17,24,39,0.06)] hover:shadow-[0_10px_0_0_rgba(17,24,39,0.08)] transition-all duration-200 flex flex-col justify-between"
+        class="w-full bg-white rounded-xl p-4 ring-1 ring-gray-200 shadow-[0_6px_0_0_rgba(17,24,39,0.06)] hover:shadow-[0_10px_0_0_rgba(17,24,39,0.08)] transition-all duration-200 flex flex-col justify-between"
       >
         <div class="flex items-center gap-2 text-gray-700 font-semibold">
           <span :class="['w-3 h-3 rounded-full', card.circulo]" />
           <span>{{ card.indicador }}</span>
         </div>
 
-        <div class="text-center py-3">
-          <div class="text-5xl font-extrabold text-gray-900 leading-none">{{ card.valor }}</div>
+        <div class="text-center py-2">
+          <div class="text-4xl font-extrabold text-gray-900 leading-none">{{ card.valor }}</div>
         </div>
 
         <div class="text-center">
