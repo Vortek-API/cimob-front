@@ -58,7 +58,7 @@ const props = withDefaults(defineProps<{
   updatedAt?: string | Date
 }>(), {
   items: () => [
-    { label: 'Mapas', to: '/home' },
+    { label: 'Home', to: '/home' },
     { label: 'Base de dados', to: '/database' },
   ],
 })
