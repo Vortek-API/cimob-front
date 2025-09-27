@@ -1,5 +1,5 @@
 export interface Radar {
-  radarId: number;
+  radarId: string;
   regiaoId: number;
   latitude: number;
   longitude: number;
