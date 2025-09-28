@@ -59,6 +59,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   items: () => [
     { label: 'Home', to: '/home' },
+    { label: 'Mapas', to: '/map' },
     { label: 'Base de dados', to: '/database' },
   ],
 })

@@ -7,3 +7,14 @@
 @theme {
   --font-sans: "Ruda", ui-sans-serif, system-ui, sans-serif;
 }
+
+input[type="password"]::-webkit-reveal,
+input[type="password"]::-webkit-clear-button {
+    display: none !important;
+    -webkit-appearance: none !important;
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none !important;
+}
