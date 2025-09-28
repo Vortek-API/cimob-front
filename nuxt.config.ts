@@ -4,7 +4,6 @@ export default defineNuxtConfig({
   srcDir: 'app',
 
   modules: [
-    '@nuxtjs/tailwindcss',
     '@nuxt/content',
     '@nuxt/eslint',
     '@nuxt/image',
@@ -12,11 +11,26 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@pinia/nuxt'
   ],
-  css: ['~/assets/css/tw.css'],
-  tailwindcss: { cssPath: false, configPath: 'tailwind.config.cjs' },
-   runtimeConfig: {
+  runtimeConfig: {
     public: {
       API_URL: process.env.API_URL
+    }
+  }
+  colorMode: {
+    // Force light mode across the app
+    preference: 'light',
+    fallback: 'light',
+    classSuffix: '',
+    storageKey: 'nuxt-color-mode-force-light'
+  },
+  // Global CSS (includes Nuxt UI via import inside tailwind.css)
+  css: [
+    '~/assets/css/tailwind.css'
+  ],
+  // Tailwind v4 PostCSS plugin
+  postcss: {
+    plugins: {
+      '@tailwindcss/postcss': {}
     }
   }
 })

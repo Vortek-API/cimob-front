@@ -1,5 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Ruda:wght@400;500;600;700;800;900&display=swap');
+/* Ensure Nuxt UI tokens + keyframes are processed by Tailwind v4 */
+@import "@nuxt/ui/runtime/index.css";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Tailwind CSS v4 theme overrides */
+@theme {
+  --font-sans: "Ruda", ui-sans-serif, system-ui, sans-serif;
+}
+
+input[type="password"]::-webkit-reveal,
+input[type="password"]::-webkit-clear-button {
+    display: none !important;
+    -webkit-appearance: none !important;
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+    display: none !important;
+}
