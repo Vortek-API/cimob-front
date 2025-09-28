@@ -11,6 +11,11 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@pinia/nuxt'
   ],
+  runtimeConfig: {
+    public: {
+      API_URL: process.env.API_URL
+    }
+  }
   colorMode: {
     // Force light mode across the app
     preference: 'light',
@@ -28,5 +33,4 @@ export default defineNuxtConfig({
       '@tailwindcss/postcss': {}
     }
   }
-
 })
