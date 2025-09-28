@@ -13,6 +13,10 @@ export default defineNuxtConfig({
     '@pinia/nuxt'
   ],
   css: ['~/assets/css/tw.css'],
-  tailwindcss: { cssPath: false, configPath: 'tailwind.config.cjs' }
-
+  tailwindcss: { cssPath: false, configPath: 'tailwind.config.cjs' },
+   runtimeConfig: {
+    public: {
+      API_URL: process.env.API_URL
+    }
+  }
 })
