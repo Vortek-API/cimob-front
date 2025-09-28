@@ -78,8 +78,6 @@ const login = async () => {
   <div class="relative w-screen h-screen flex items-center justify-center"
     style="background-image: url('/images/sao-jose-campos.png'); background-size: cover; background-position: center;">
 
-    <div class="absolute inset-0 bg-black opacity-60 z-0"></div>
-
     <div class="relative w-screen h-screen flex items-center justify-center">
       <!-- Card de login -->
       <div class="opacity-80 relative w-[700px] h-[490px] z-10 shadow-2xl rounded-[20px]" data-name="Login group">
@@ -167,9 +165,8 @@ const login = async () => {
             </svg>
           </button>
 
-          <!-- Botão login centralizado -->
           <!-- Botão de Login -->
-          <div class="absolute left-[135.7px] right-0 bottom-[-70px] flex justify-center flex justify-center mt-6">
+          <div class="absolute right-4 bottom-[-70px]">
             <button @click="login" :disabled="loading"
               class="h-[35px] w-[155px] rounded-md cursor-pointer font-nunito shadow-md flex justify-center items-center"
               style="background-color: #113E63; color: white; box-shadow: 0px 4px 4px rgba(0,0,0,0.25);"
