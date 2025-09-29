@@ -77,7 +77,18 @@ watch(dataSelecionada, () => {
 
 <template>
   <div class="bg-white rounded-xl ring-1 ring-gray-200 shadow" :style="props.maxHeight ? { maxHeight: props.maxHeight, overflowY: 'auto' } : undefined">
-    <div v-if="isLoading" class="px-4 py-3 text-sm text-gray-600">Carregando...</div>
+    <div v-if="isLoading" class="p-4">
+      <div class="flex items-center gap-3 text-gray-600">
+        <svg class="animate-spin h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <span class="text-sm">Carregando índices críticos...</span>
+      </div>
+      <div class="mt-4 space-y-2">
+        <div v-for="i in 3" :key="`s-${i}`" class="h-4 bg-gray-200 rounded w-full animate-pulse"></div>
+      </div>
+    </div>
     <div v-else-if="errorMsg" class="px-4 py-3 text-sm text-red-600">{{ errorMsg }}</div>
     <div v-else>
       <UTable :data="visibleData" :columns="columns" :ui="tableUi" />
