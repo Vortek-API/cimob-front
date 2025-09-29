@@ -1,7 +1,7 @@
 <template>
   <DashboardLayout>
-    <h1 class="text-2xl font-bold mb-4">Base de dados</h1>
-    <p>Página de exemplo para a rota /database.</p>
+    <!-- <h1 class="text-2xl font-bold mb-4">Base de dados</h1>
+    <p>Página de exemplo para a rota /database.</p> -->
   </DashboardLayout>
 </template>
 

@@ -9,10 +9,11 @@
         </div>
 
         <div class="w-full max-w-[860px]">
-          <ComponenteIndicadores />
-          <div class="mt-3 flex justify-end">
+          <div class="flex items-center justify-between mb-6 md:mb-8">
+            <SeletorDataInicial />
             <MenuRegiao />
           </div>
+          <ComponenteIndicadores />
         </div>
       </div>
     </div>
