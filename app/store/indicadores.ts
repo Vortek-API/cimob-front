@@ -11,9 +11,13 @@ export type Card = {
 }
 
 export const cards = ref<Card[]>([])
+export const isLoadingIndicadores = ref<boolean>(false)
+export const indicadoresError = ref<string | null>(null)
 
 export async function reloadIndicadores(regiaoId?: number, dataInicial?: string) {
   try {
+    isLoadingIndicadores.value = true
+    indicadoresError.value = null
     const indicadores: Indicador[] = await fetchIndicadores(regiaoId, dataInicial);
     cards.value = indicadores.map(indicador => ({
       id: indicador.indicadorId,
@@ -22,8 +26,12 @@ export async function reloadIndicadores(regiaoId?: number, dataInicial?: string)
       circulo: getCor(indicador.valor),
       // to: '/database'
     }))
-  } catch (err) {
+  } catch (err: any) {
     console.error('Erro ao atualizar indicadores:', err)
+    indicadoresError.value = err?.message || 'Erro ao carregar indicadores'
+    cards.value = []
+  } finally {
+    isLoadingIndicadores.value = false
   }
 }
 
