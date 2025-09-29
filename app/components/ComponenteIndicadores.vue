@@ -15,34 +15,23 @@
           <div class="text-4xl font-extrabold text-gray-900 leading-none">{{ card.valor }}</div>
         </div>
 
-        <div class="text-center">
+        <!-- <div class="text-center">
           <NuxtLink
             :to="card.to"
             class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-white shadow-md bg-gradient-to-b from-blue-800 to-blue-900 hover:from-blue-700 hover:to-blue-800 transition-colors"
           >
             Ver detalhes
           </NuxtLink>
-        </div>
+        </div> -->
       </div>
     </div>
   </section>
-  
 </template>
 
 <script setup lang="ts">
-type Card = {
-  id: number
-  indicador: string
-  valor: number
-  circulo: string
-  to: string
-}
+import { cards, reloadIndicadores } from '~/store/indicadores'
+import { isFiltered, regiaoSelecionada } from '~/store/filtro'
 
-const cards: Card[] = [
-  { id: 1, indicador: 'Trânsito', valor: 3, circulo: 'bg-orange-500', to: '/database' },
-  { id: 2, indicador: 'Velocidade Média', valor: 1, circulo: 'bg-green-500', to: '/database' },
-  { id: 3, indicador: 'Indicador a Definir', valor: 1, circulo: 'bg-lime-500', to: '/database' },
-]
 </script>
 
 <style scoped>

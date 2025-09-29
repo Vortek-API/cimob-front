@@ -50,17 +50,17 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
+import { ultimaAtualizacao } from '~/store/filtro'
 
 type Item = { label: string; to?: string }
 
 const props = withDefaults(defineProps<{
   items?: Item[]
-  updatedAt?: string | Date
 }>(), {
   items: () => [
     { label: 'Home', to: '/home' },
     { label: 'Mapas', to: '/map' },
-    { label: 'Base de dados', to: '/database' },
+    // { label: 'Base de dados', to: '/database' },
   ],
 })
 
@@ -69,7 +69,11 @@ const route = useRoute()
 const isActive = (item: Item) => !!item.to && route.path.startsWith(item.to)
 
 const formattedUpdatedAt = computed(() => {
-  const d = props.updatedAt ? new Date(props.updatedAt) : new Date()
+  if (!ultimaAtualizacao.value) {
+    return 'Nunca atualizado'
+  }
+  
+  const d = new Date(ultimaAtualizacao.value)
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} - ${pad(d.getHours())}:${pad(d.getMinutes())}`
 })

@@ -15,7 +15,7 @@ export default defineNuxtConfig({
     public: {
       API_URL: process.env.API_URL
     }
-  }
+  },
   colorMode: {
     // Force light mode across the app
     preference: 'light',
