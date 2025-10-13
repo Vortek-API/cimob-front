@@ -10,18 +10,48 @@
 
         <div class="w-full max-w-[860px]">
           <div class="flex items-center justify-between mb-6 md:mb-8">
+
             <SeletorDataInicial />
-            <MenuRegiao />
-          </div>
+  <MenuRegiao />
+  <button
+    @click="abrirModal"
+    class="ml-auto bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105"
+  >
+    Criar Indicador
+  </button>
+          <div class="flex items-center gap-4 mb-4">
+                  </div>
+              
+              <ModalCriarIndicador 
+                v-if="isModalAberto" 
+                @fechar="fecharModal"
+                @salvar="salvarNovoIndicador"
+              />
+            </div>
+           </div>
           <ComponenteIndicadores />
         </div>
       </div>
-    </div>
   </main>
 </template>
 
 <script setup lang="ts">
-</script>
+import ModalCriarIndicador from '../components/ModalCriarIndicador.vue' 
 
+const isModalAberto = ref(false)
+
+function abrirModal() {
+  isModalAberto.value = true
+}
+function fecharModal() {
+  isModalAberto.value = false
+}
+
+function salvarNovoIndicador(dadosDoFormulario: any) {
+  console.log('Salvando os Dados: ', dadosDoFormulario);
+    // futuramente eu posso chamar uma API para criar o indicador
+  fecharModal();
+}
+</script>
 <style scoped>
 </style>
