@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { reloadIndicadores } from '~/store/indicadores'
-import { setRegiaoSelecionada, dataSelecionada } from '~/store/filtro'
+import { setRegiaoSelecionada } from '~/store/filtro'
 import { fetchRegioes } from '~/services/regiao-api'
+import { getCurrentWindowTimestampString } from '~/store/timestamp'
+import { APP_CONFIG } from '~/config/app-config'
 import type { Regiao } from '~/types/regiao'
 
 const items = ref<Array<{label: string, value: number | null}>>([
@@ -41,8 +43,9 @@ watch(value, async (newValue) => {
   
   debounceTimer = setTimeout(async () => {
     setRegiaoSelecionada(newValue)
-    await reloadIndicadores(newValue || undefined, dataSelecionada.value || undefined)
-  }, 300)
+    const timestampAtual = getCurrentWindowTimestampString()
+    await reloadIndicadores(newValue || undefined, timestampAtual)
+  }, APP_CONFIG.FILTER_DEBOUNCE_MS)
 })
 </script>
 

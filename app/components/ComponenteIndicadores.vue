@@ -49,9 +49,10 @@
 </template>
 
 <script setup lang="ts">
-import { cards, reloadIndicadores, isLoadingIndicadores, indicadoresError } from '~/store/indicadores'
-import { isFiltered, regiaoSelecionada } from '~/store/filtro'
+import { cards, isLoadingIndicadores, indicadoresError } from '~/store/indicadores'
+import { useIndicadoresAutoRefresh } from '~/composables/useIndicadoresAutoRefresh'
 
+useIndicadoresAutoRefresh()
 </script>
 
 <style scoped>
