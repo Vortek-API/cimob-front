@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 
 export const regiaoSelecionada = ref<number | null>(null)
-export const dataSelecionada = ref<string | null>(null)
 export const ultimaAtualizacao = ref<string | null>(null)
 export const isFiltered = ref(false)
 
@@ -10,17 +9,12 @@ export function setRegiaoSelecionada(regiaoId: number | null) {
   isFiltered.value = regiaoId !== null
 }
 
-export function setDataSelecionada(data: string | null) {
-  dataSelecionada.value = data
-}
-
 export function setUltimaAtualizacao(data: string) {
   ultimaAtualizacao.value = data
 }
 
 export function clearFiltro() {
   regiaoSelecionada.value = null
-  dataSelecionada.value = null
   ultimaAtualizacao.value = null
   isFiltered.value = false
 }

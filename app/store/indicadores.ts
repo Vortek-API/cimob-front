@@ -14,11 +14,11 @@ export const cards = ref<Card[]>([])
 export const isLoadingIndicadores = ref<boolean>(false)
 export const indicadoresError = ref<string | null>(null)
 
-export async function reloadIndicadores(regiaoId?: number, dataInicial?: string) {
+export async function reloadIndicadores(regiaoId?: number, timestamp?: string) {
   try {
     isLoadingIndicadores.value = true
     indicadoresError.value = null
-    const indicadores: Indicador[] = await fetchIndicadores(regiaoId, dataInicial);
+    const indicadores: Indicador[] = await fetchIndicadores(regiaoId, timestamp);
     cards.value = indicadores.map(indicador => ({
       id: indicador.indicadorId,
       indicador: indicador.nome,

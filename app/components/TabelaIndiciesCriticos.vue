@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { dataSelecionada } from '~/store/filtro'
+import { computed } from 'vue'
+import { useIndicesCriticosAutoRefresh } from '~/composables/useIndicesCriticosAutoRefresh'
 
 const props = withDefaults(defineProps<{ maxHeight?: string; limit?: number }>(), {
   limit: 3
@@ -14,9 +14,7 @@ type Linha = {
   velocidadeRegistrada: number
 }
 
-const rows = ref<Linha[]>([])
-const isLoading = ref(false)
-const errorMsg = ref<string | null>(null)
+const { rows, isLoading, errorMsg } = useIndicesCriticosAutoRefresh()
 
 const columns = [
   { accessorKey: 'endereco', header: 'Endereço do radar' },
@@ -38,41 +36,6 @@ const tableUi = {
 }
 
 const visibleData = computed(() => rows.value.slice(0, props.limit))
-
-async function loadData() {
-  try {
-    isLoading.value = true
-    errorMsg.value = null
-    const config = useRuntimeConfig()
-    let url = `${config.public.API_URL}/indicadores/indices-criticos`
-    const params = new URLSearchParams()
-    if (dataSelecionada.value) params.append('dataInicial', dataSelecionada.value)
-    if (params.toString()) url += `?${params.toString()}`
-
-    const resp = await fetch(url)
-    if (!resp.ok) throw new Error('Erro ao buscar índices críticos')
-    const json = await resp.json() as Array<{ endereco: string; velocidadePermitida: number; velocidadeRegistrada: number; regiaoNome?: string | null; dataHora?: string | null }>
-    rows.value = json.map(item => ({
-      endereco: item.endereco || '—',
-      regiao: item.regiaoNome || '—',
-      intervalo: item.dataHora || '—',
-      velocidadePermitida: item.velocidadePermitida,
-      velocidadeRegistrada: item.velocidadeRegistrada,
-    }))
-  } catch (e: any) {
-    errorMsg.value = e?.message || 'Erro ao buscar índices críticos'
-  } finally {
-    isLoading.value = false
-  }
-}
-
-onMounted(loadData)
-
-let debounceTimer: number | null = null
-watch(dataSelecionada, () => {
-  if (debounceTimer) clearTimeout(debounceTimer)
-  debounceTimer = setTimeout(() => loadData(), 200)
-})
 </script>
 
 <template>

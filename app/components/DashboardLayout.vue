@@ -10,7 +10,6 @@
 
         <div class="w-full max-w-[860px]">
           <div class="flex items-center justify-between mb-6 md:mb-8">
-            <SeletorDataInicial />
             <MenuRegiao />
           </div>
           <ComponenteIndicadores />
