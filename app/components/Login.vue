@@ -4,8 +4,9 @@ import { createToast } from "mosha-vue-toastify";
 import "mosha-vue-toastify/dist/style.css";
 import imgCimo from "/images/cimob.png";
 import svgPathsImport from "~/assets/svgPaths";
+import { autenticarUsuario } from "~/services/autenticador-api";
 
-// Dados do formulário
+// Estado do formulário
 const usuario = ref("");
 const senha = ref("");
 const mostrarSenha = ref(false);
@@ -14,13 +15,8 @@ const loading = ref(false);
 // SVGs importados
 const svgPaths = svgPathsImport;
 
-// Função para mostrar/ocultar senha
-const toggleSenha = () => {
-  mostrarSenha.value = !mostrarSenha.value;
-};
-
-// Toasts centralizados
-const toastWarning = (msg: string) =>
+// Toasts
+const toastAviso = (msg: string) =>
   createToast(msg, {
     type: "warning",
     position: "top-center",
@@ -28,7 +24,7 @@ const toastWarning = (msg: string) =>
     timeout: 3000,
   });
 
-const toastSuccess = (msg: string) =>
+const toastSucesso = (msg: string) =>
   createToast(msg, {
     type: "success",
     position: "top-center",
@@ -36,42 +32,53 @@ const toastSuccess = (msg: string) =>
     timeout: 3000,
   });
 
+// Mostrar/ocultar senha
+const toggleSenha = () => (mostrarSenha.value = !mostrarSenha.value);
+
 // Função de login
 const login = async () => {
+  // Validação básica
   if (!usuario.value || !senha.value) {
-    toastWarning("Preencha todos os campos!");
+    toastAviso("Por favor, preencha todos os campos!");
     return;
   }
 
   loading.value = true;
   try {
-    const response = await fetch("https://backend/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: usuario.value,
-        password: senha.value,
-      }),
+    const data = await autenticarUsuario({
+      userName: usuario.value,
+      senha: senha.value,
     });
 
-    const data = await response.json();
+    // Salva o token no localStorage
+    localStorage.setItem("token", data.accessToken);
 
-    if (!response.ok) throw new Error(data.message || "Erro ao realizar login");
-
-    // Salvar token localmente
-    localStorage.setItem("token", data.token);
-
-    // Notificação de sucesso
-    toastSuccess("Login realizado com sucesso!");
+    toastSucesso("Login realizado com sucesso!");
+    // Redireciona para o dashboard
+    window.location.href = "/dashboard";
   } catch (error: any) {
-    // Notificação de erro
-    toastWarning(error.message || "Erro desconhecido ao realizar login");
+    // Tratamento de erros detalhado
+    if (error.response) {
+      // Erro retornado do backend
+      if (error.response.status === 401) {
+        toastAviso("Usuário ou senha incorretos!");
+      } else if (error.response.data?.message) {
+        toastAviso(`Erro: ${error.response.data.message}`);
+      } else {
+        toastAviso(`Erro no servidor: ${error.response.status}`);
+      }
+    } else if (error.request) {
+      // Nenhuma resposta recebida
+      toastAviso("Não foi possível conectar ao servidor. Tente novamente.");
+    } else {
+      // Outro tipo de erro
+      toastAviso(`Erro inesperado: ${error.message}`);
+    }
   } finally {
     loading.value = false;
   }
 };
 </script>
-
 
 <template>
   <!-- Container principal -->
