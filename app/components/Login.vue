@@ -43,23 +43,28 @@ const login = async () => {
     return;
   }
 
+  // Trim para remover espaços extras
+  const userTrimmed = usuario.value.trim();
+  const passTrimmed = senha.value.trim();
+
+  console.log("Enviando:", { userName: userTrimmed, senha: passTrimmed });
+
   loading.value = true;
   try {
     const data = await autenticarUsuario({
-      userName: usuario.value,
-      senha: senha.value,
+      userName: userTrimmed,
+      senha: passTrimmed,
     });
 
     // Salva o token no localStorage
     localStorage.setItem("token", data.accessToken);
+    console.log("Token recebido:", data.accessToken); // Debug token
 
     toastSucesso("Login realizado com sucesso!");
-    // Redireciona para o dashboard
-    window.location.href = "/dashboard";
+    window.location.href = "/home";
   } catch (error: any) {
     // Tratamento de erros detalhado
     if (error.response) {
-      // Erro retornado do backend
       if (error.response.status === 401) {
         toastAviso("Usuário ou senha incorretos!");
       } else if (error.response.data?.message) {
@@ -68,10 +73,8 @@ const login = async () => {
         toastAviso(`Erro no servidor: ${error.response.status}`);
       }
     } else if (error.request) {
-      // Nenhuma resposta recebida
       toastAviso("Não foi possível conectar ao servidor. Tente novamente.");
     } else {
-      // Outro tipo de erro
       toastAviso(`Erro inesperado: ${error.message}`);
     }
   } finally {

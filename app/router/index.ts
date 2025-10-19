@@ -1,27 +1,27 @@
-import { createRouter, createWebHistory } from "vue-router";
-import Login from "~/pages/login.vue";
-import Home from "~/pages/home.vue";
-import { useAuthStore } from "~/store/authStore";
+import { createRouter, createWebHistory } from 'vue-router'
+import Login from '~/pages/login.vue'
+import Home from '~/pages/home.vue'
+import { useAuthStore } from '~/store/authStore'
 
 const routes = [
-  { path: "/login", component: Login },
-  { path: "/home", component: Home, meta: { requiresAuth: true } },
-];
+  { path: '/login', component: Login },
+  { path: '/home', component: Home, meta: { requiresAuth: true } },
+  { path: '/dashboard', component: Home, meta: { requiresAuth: true } },
+]
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
-});
+})
 
 router.beforeEach((to, _, next) => {
-  const auth = useAuthStore();
+  const auth = useAuthStore()
 
-  // verifica se a rota precisa de autenticação
   if (to.meta.requiresAuth && !auth.isAuthenticated.valueOf) {
-    next("/"); // redireciona para login
+    next('/login') // redireciona pro login
   } else {
-    next(); // deixa passar
+    next() // deixa passar
   }
-});
+})
 
-export default router;
+export default router
