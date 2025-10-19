@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { Map, MapStyle, Marker, config } from '@maptiler/sdk';
+import { Map, MapStyle, Marker, config as mapConfig } from '@maptiler/sdk';
 import { shallowRef, onMounted, onUnmounted, markRaw } from 'vue';
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import { fetchRadars } from '~/services/radar-api';
@@ -15,7 +15,8 @@ const mapContainer = shallowRef<HTMLElement | null>(null);
 const map = shallowRef<Map | null>(null);
 
 onMounted(async () => {
-  config.apiKey = '1QOxUIVLS3xCNYdD68Gu';
+  const { public: publicConfig } = useRuntimeConfig()
+  mapConfig.apiKey = publicConfig.MAPTILER_API_KEY
 
   const initialState = { lng: -45.85477630787629, lat: -23.21252050854134, zoom: 12 };
 
