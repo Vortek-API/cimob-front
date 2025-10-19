@@ -11,6 +11,8 @@ import { shallowRef, onMounted, onUnmounted, markRaw } from 'vue';
 import '@maptiler/sdk/dist/maptiler-sdk.css';
 import { fetchRadars } from '~/services/radar-api';
 import type { Radar } from '~/types/radar';
+import { fetchPontos } from '~/services/ponto-api';
+import type { Ponto } from '~/types/ponto';
 
 const mapContainer = shallowRef<HTMLElement | null>(null);
 const map = shallowRef<Map | null>(null);
@@ -41,6 +43,17 @@ onMounted(async () => {
 
     const radars = await fetchRadars()
     addRadarLayer(radars)
+
+    await map.value!.loadImage('/images/bus-icon.png')
+      .then(img => {
+        if (!map.value!.hasImage('bus-icon')) {
+          map.value!.addImage('bus-icon', img.data)
+        }
+      })
+      .catch(err => console.error('Erro ao carregar imagem:', err))
+
+    const pontos = await fetchPontos()
+    addPontoLayer(pontos)
   })
 })
 
@@ -80,6 +93,45 @@ function addRadarLayer(radars: Radar[]) {
       source: 'radars',
       layout: {
         'icon-image': 'radar-icon',
+        'icon-size': 1,
+        'icon-allow-overlap': true
+      }
+    })
+  }
+}
+
+function addPontoLayer(pontos: Ponto[]) {
+  if (!map.value) return
+
+  const geojson: FeatureCollection<Point, GeoJsonProperties> = {
+    type: 'FeatureCollection',
+    features: pontos.map(ponto => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [ponto.longitude, ponto.latitude]
+      },
+      properties: {
+        id: ponto.pontoId,
+        type: 'ponto'
+      }
+    }))
+  };
+
+  if (!map.value.getSource('pontos')) {
+    map.value.addSource('pontos', {
+      type: 'geojson',
+      data: geojson
+    })
+  }
+
+  if (!map.value.getLayer('pontos-layer')) {
+    map.value.addLayer({
+      id: 'pontos-layer',
+      type: 'symbol',
+      source: 'pontos',
+      layout: {
+        'icon-image': 'bus-icon',
         'icon-size': 1,
         'icon-allow-overlap': true
       }
