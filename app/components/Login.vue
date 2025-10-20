@@ -176,14 +176,12 @@ const login = async () => {
           </button>
 
           <!-- Botão de Login -->
-          <div class="absolute right-4 bottom-[-70px]">
-            <button @click="login" :disabled="loading"
-              class="h-[35px] w-[155px] rounded-md cursor-pointer font-nunito shadow-md flex justify-center items-center"
-              style="background-color: #113E63; color: white; box-shadow: 0px 4px 4px rgba(0,0,0,0.25);"
-              onmouseover="this.style.backgroundColor='#0f2b4a'" onmouseout="this.style.backgroundColor='#113E63'">
-              ENTRAR
-            </button>
-          </div>
+     <div class="absolute bottom-[-70px] left-1/2 transform -translate-x-1/2 w-full flex justify-center">
+  <button @click="login" :disabled="loading"
+    class="h-[35px] w-[155px] rounded-md cursor-pointer font-nunito shadow-md flex justify-center items-center bg-[#113E63] text-white hover:bg-[#0f2b4a] transition-colors duration-200">
+    ENTRAR
+  </button>
+</div>
 
 
         </div>

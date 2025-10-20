@@ -1,6 +1,5 @@
 <template>
   <div class="flex min-h-screen bg-gray-100">
-    <Sidebar />
     <main class="flex-1 bg-gray-100 p-6">
       <div class="max-w-6xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[320px_1fr] xl:grid-cols-[320px_1fr] gap-8 items-start">

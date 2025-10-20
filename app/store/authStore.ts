@@ -1,28 +1,30 @@
-import { defineStore } from "pinia";
-import { ref, computed } from "vue";
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
 
-export const useAuthStore = defineStore("auth", () => {
-  const token = ref<string | null>(localStorage.getItem("token"));
-  const refreshToken = ref<string | null>(localStorage.getItem("refreshToken"));
+export const useAuthStore = defineStore('auth', () => {
+  const token = ref<string | null>(null)
+  const refreshToken = ref<string | null>(null)
+
+  const isAuthenticated = computed(() => !!token.value)
 
   const setToken = (value: string) => {
-    token.value = value;
-    localStorage.setItem("token", value);
-  };
+    token.value = value
+    if (typeof window !== 'undefined') localStorage.setItem('token', value)
+  }
 
   const setRefreshToken = (value: string) => {
-    refreshToken.value = value;
-    localStorage.setItem("refreshToken", value);
-  };
+    refreshToken.value = value
+    if (typeof window !== 'undefined') localStorage.setItem('refreshToken', value)
+  }
 
   const logout = () => {
-    token.value = null;
-    refreshToken.value = null;
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-  };
+    token.value = null
+    refreshToken.value = null
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
+    }
+  }
 
-  const isAuthenticated = computed(() => !!token.value);
-
-  return { token, refreshToken, setToken, setRefreshToken, logout, isAuthenticated };
-});
+  return { token, refreshToken, setToken, setRefreshToken, logout, isAuthenticated }
+})

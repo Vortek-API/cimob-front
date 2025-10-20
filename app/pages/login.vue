@@ -6,4 +6,8 @@
 
 <script setup lang="ts">
 import DashboardLayout from '~/components/Login.vue' 
+
+definePageMeta({
+  requiresAuth: true
+});
 </script>

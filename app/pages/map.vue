@@ -10,7 +10,10 @@
 <script setup lang="ts">
 import Sidebar from '~/components/Sidebar.vue'
 import Map from '~/components/Map.vue'
-</script>
 
+definePageMeta({
+  requiresAuth: true
+});
+</script>
 <style scoped>
 </style>
