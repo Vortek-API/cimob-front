@@ -4,8 +4,9 @@ import { createToast } from "mosha-vue-toastify";
 import "mosha-vue-toastify/dist/style.css";
 import imgCimo from "/images/cimob.png";
 import svgPathsImport from "~/assets/svgPaths";
+import { autenticarUsuario } from "~/services/autenticador-api";
 
-// Dados do formulário
+// Estado do formulário
 const usuario = ref("");
 const senha = ref("");
 const mostrarSenha = ref(false);
@@ -14,13 +15,8 @@ const loading = ref(false);
 // SVGs importados
 const svgPaths = svgPathsImport;
 
-// Função para mostrar/ocultar senha
-const toggleSenha = () => {
-  mostrarSenha.value = !mostrarSenha.value;
-};
-
-// Toasts centralizados
-const toastWarning = (msg: string) =>
+// Toasts
+const toastAviso = (msg: string) =>
   createToast(msg, {
     type: "warning",
     position: "top-center",
@@ -28,7 +24,7 @@ const toastWarning = (msg: string) =>
     timeout: 3000,
   });
 
-const toastSuccess = (msg: string) =>
+const toastSucesso = (msg: string) =>
   createToast(msg, {
     type: "success",
     position: "top-center",
@@ -36,42 +32,56 @@ const toastSuccess = (msg: string) =>
     timeout: 3000,
   });
 
+// Mostrar/ocultar senha
+const toggleSenha = () => (mostrarSenha.value = !mostrarSenha.value);
+
 // Função de login
 const login = async () => {
+  // Validação básica
   if (!usuario.value || !senha.value) {
-    toastWarning("Preencha todos os campos!");
+    toastAviso("Por favor, preencha todos os campos!");
     return;
   }
 
+  // Trim para remover espaços extras
+  const userTrimmed = usuario.value.trim();
+  const passTrimmed = senha.value.trim();
+
+  console.log("Enviando:", { userName: userTrimmed, senha: passTrimmed });
+
   loading.value = true;
   try {
-    const response = await fetch("https://backend/api/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: usuario.value,
-        password: senha.value,
-      }),
+    const data = await autenticarUsuario({
+      userName: userTrimmed,
+      senha: passTrimmed,
     });
 
-    const data = await response.json();
+    // Salva o token no localStorage
+    localStorage.setItem("token", data.accessToken);
+    console.log("Token recebido:", data.accessToken); // Debug token
 
-    if (!response.ok) throw new Error(data.message || "Erro ao realizar login");
-
-    // Salvar token localmente
-    localStorage.setItem("token", data.token);
-
-    // Notificação de sucesso
-    toastSuccess("Login realizado com sucesso!");
+    toastSucesso("Login realizado com sucesso!");
+    window.location.href = "/home";
   } catch (error: any) {
-    // Notificação de erro
-    toastWarning(error.message || "Erro desconhecido ao realizar login");
+    // Tratamento de erros detalhado
+    if (error.response) {
+      if (error.response.status === 401) {
+        toastAviso("Usuário ou senha incorretos!");
+      } else if (error.response.data?.message) {
+        toastAviso(`Erro: ${error.response.data.message}`);
+      } else {
+        toastAviso(`Erro no servidor: ${error.response.status}`);
+      }
+    } else if (error.request) {
+      toastAviso("Não foi possível conectar ao servidor. Tente novamente.");
+    } else {
+      toastAviso(`Erro inesperado: ${error.message}`);
+    }
   } finally {
     loading.value = false;
   }
 };
 </script>
-
 
 <template>
   <!-- Container principal -->
@@ -166,14 +176,12 @@ const login = async () => {
           </button>
 
           <!-- Botão de Login -->
-          <div class="absolute right-4 bottom-[-70px]">
-            <button @click="login" :disabled="loading"
-              class="h-[35px] w-[155px] rounded-md cursor-pointer font-nunito shadow-md flex justify-center items-center"
-              style="background-color: #113E63; color: white; box-shadow: 0px 4px 4px rgba(0,0,0,0.25);"
-              onmouseover="this.style.backgroundColor='#0f2b4a'" onmouseout="this.style.backgroundColor='#113E63'">
-              ENTRAR
-            </button>
-          </div>
+     <div class="absolute bottom-[-70px] left-1/2 transform -translate-x-1/2 w-full flex justify-center">
+  <button @click="login" :disabled="loading"
+    class="h-[35px] w-[155px] rounded-md cursor-pointer font-nunito shadow-md flex justify-center items-center bg-[#113E63] text-white hover:bg-[#0f2b4a] transition-colors duration-200">
+    ENTRAR
+  </button>
+</div>
 
 
         </div>
