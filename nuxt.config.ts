@@ -13,7 +13,8 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      API_URL: process.env.API_URL
+      API_URL: process.env.API_URL,
+      MAPTILER_API_KEY: process.env.MAPTILER_API_KEY,
     }
   },
   colorMode: {
