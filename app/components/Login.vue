@@ -3,7 +3,7 @@
   <div class="main-container" :style="{ backgroundImage: `url(\'/images/sao-jose-campos.png\')` }">
 
     <!-- Card de login com opacidade e lógica de alternância de classes -->
-    <div class="login-card" :class="loginAdminCimob ? 'sign-up-js' : 'sign-in-js'">
+    <div class="login-card" :class="loginAdminCimob ? 'sign-up-ts' : 'sign-in-ts'">
 
       <!-- Fundo azul do card -->
       <div class="card-background"></div>
@@ -322,11 +322,11 @@ body {
   transform: translateX(100%);
 }
 
-.sign-in-js .first-content {
+.sign-in-ts .first-content {
   transform: translateX(-100%);
 }
 
-.sign-in-js .second-content {
+.sign-in-ts .second-content {
   transform: translateX(0%);
 }
 
@@ -558,11 +558,11 @@ body {
   }
 
   /* Animações para telas pequenas */
-  .sign-in-js .first-content {
+  .sign-in-ts .first-content {
     transform: translateY(-100%);
   }
 
-  .sign-in-js .second-content {
+  .sign-in-ts .second-content {
     transform: translateY(0%);
   }
 
