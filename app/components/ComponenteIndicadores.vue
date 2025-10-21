@@ -30,9 +30,16 @@
             <span>{{ card.indicador }}</span>
           </div>
 
-          <div class="text-center py-2">
-            <div class="text-4xl font-extrabold text-gray-900 leading-none">{{ card.valor }}</div>
-          </div>
+        <div class="text-center py-2">
+            <div 
+              :class="[
+                'text-4xl font-extrabold text-gray-900 leading-none', 
+                card.corValor 
+              ]"
+            >
+              {{ card.valor }}
+            </div>
+          </div>
 
         <!-- <div class="text-center">
           <NuxtLink
