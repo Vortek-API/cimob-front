@@ -43,7 +43,7 @@
           </svg>
         </div>
         <div>
-          <div class="font-medium leading-tight">{{ username }}</div>
+          <div class="font-medium leading-tight">{{ email }}</div>
           <button type="button" class="text-blue-700 hover:underline text-sm" @click="logout">
             Sair
           </button>
@@ -79,16 +79,16 @@ const auth = useAuthStore()
 const items = computed(() => props.items ?? [])
 
 // --- Username (client-side only)
-const username = ref('Usuário')
+const email = ref('Usuário')
 onMounted(() => {
   const token = localStorage.getItem('token')
   if (token) {
     try {
-      const decoded = jwtDecode<{ sub?: string; userName?: string; nome?: string }>(token)
-      username.value = decoded.userName || decoded.sub || decoded.nome || 'Usuário'
+      const decoded = jwtDecode<{ sub?: string; email?: string; nome?: string }>(token)
+      email.value = decoded.email || decoded.sub || decoded.nome || 'Usuário'
     } catch (err) {
       console.error('Erro ao decodificar token:', err)
-      username.value = 'Usuário'
+      email.value = 'Usuário'
     }
   }
 })

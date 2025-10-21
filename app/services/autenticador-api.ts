@@ -3,7 +3,7 @@ import { useAuthStore } from "~/store/authStore";
 
 // Interfaces de request e response
 export interface LoginRequest {
-  userName: string;
+  email: string;
   senha: string;
 }
 
@@ -43,8 +43,8 @@ export async function refreshToken(token: string): Promise<LoginResponse> {
 }
 
 // Função de logout
-export async function logout(userName: string): Promise<void> {
-  await api.post(`/logout?userName=${userName}`);
+export async function logout(email: string): Promise<void> {
+  await api.post(`/logout?email=${email}`);
 }
 
 export default api;
