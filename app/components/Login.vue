@@ -3,7 +3,7 @@
   <div class="main-container" :style="{ backgroundImage: `url(\'/images/sao-jose-campos.png\')` }">
 
     <!-- Card de login com opacidade e lógica de alternância de classes -->
-    <div class="login-card" :class="loginAdminCimob ? 'sign-in-js' : 'sign-up-js'">
+    <div class="login-card" :class="loginAdminCimob ? 'sign-up-js' : 'sign-in-js'">
 
       <!-- Fundo azul do card -->
       <div class="card-background"></div>
@@ -21,55 +21,6 @@
 
       <!-- Conteúdo das telas de login/cadastro -->
       <div class="content-wrapper">
-
-        <!-- Primeira Tela: Administrador (esquerda) / Usuário (direita) -->
-        <div class="content first-content">
-          <div class="column first-column-panel">
-            <h2 class="title title-primary">Já Sou CIMOB!</h2>
-            <p class="description description-primary">Se você tem o cadastro comum ou é administrador por favor clique aqui</p>
-            <button @click="togglePanel" class="btn btn-primary">Entrar</button>
-          </div>
-
-          <div class="column second-column-form">
-
-            <form class="form" @submit.prevent="cadastrarUserCimob">
-              <label class="label-input">
-                <i class="far fa-user icon-modify"></i>
-                <input type="text" v-model="nomeUserCimob" placeholder="Nome Completo">
-              </label>
-
-                 <label class="label-input">
-                <i class="far fa-user icon-modify"></i>
-                <input type="text" v-model="nomeUserCimob" placeholder="CPF">
-              </label>
-
-              <label class="label-input">
-                <i class="far fa-envelope icon-modify"></i>
-                <input type="email" v-model="emailUserCimob" placeholder="Email">
-              </label>
-
-              <label class="label-input">
-                <i class="fas fa-lock icon-modify"></i>
-                <input :type="mostrarSenhaUser ? 'text' : 'password'" v-model="senhaUserCimob" placeholder="Senha">
-                <button type="button" @click="toggleSenhaUser" class="toggle-password-visibility">
-                  <svg v-if="!mostrarSenhaUser" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="2" stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
-                  </svg>
-                  <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                    stroke="currentColor" class="w-6 h-6">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M3 3l18 18M4.465 4.465A10.95 10.95 0 0112 5c4.478 0 8.268 2.943 9.542 7-.344 1.096-.882 2.108-1.58 3.016M9.88 9.88a3 3 0 104.24 4.24M3 3l18 18" />
-                  </svg>
-                </button>
-              </label>
-
-              <button class="btn btn-second" type="submit">Cadastrar</button>
-            </form>
-          </div>
-        </div>
 
         <!-- Segunda Tela: Usuário (esquerda) / Administrador (direita) -->
         <div class="content second-content">
@@ -108,6 +59,56 @@
               <button class="btn btn-second" type="submit">Entrar</button>
             </form>
 
+          </div>
+        </div>
+
+        <!-- Primeira Tela: Administrador (esquerda) / Usuário (direita) -->
+        <div class="content first-content">
+          <div class="column first-column-panel">
+            <h2 class="title title-primary">Já Sou CIMOB!</h2>
+            <p class="description description-primary">Se você tem o cadastro comum ou é administrador por favor clique
+              aqui</p>
+            <button @click="togglePanel" class="btn btn-primary">Entrar</button>
+          </div>
+
+          <div class="column second-column-form">
+
+            <form class="form" @submit.prevent="cadastrarUserCimob">
+              <label class="label-input">
+                <i class="far fa-user icon-modify"></i>
+                <input type="text" v-model="nomeUserCimob" placeholder="Nome Completo">
+              </label>
+
+              <label class="label-input">
+                <i class="far fa-user icon-modify"></i>
+                <input type="text" v-model="nomeUserCimob" placeholder="CPF">
+              </label>
+
+              <label class="label-input">
+                <i class="far fa-envelope icon-modify"></i>
+                <input type="email" v-model="emailUserCimob" placeholder="Email">
+              </label>
+
+              <label class="label-input">
+                <i class="fas fa-lock icon-modify"></i>
+                <input :type="mostrarSenhaUser ? 'text' : 'password'" v-model="senhaUserCimob" placeholder="Senha">
+                <button type="button" @click="toggleSenhaUser" class="toggle-password-visibility">
+                  <svg v-if="!mostrarSenhaUser" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                    stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3 3l18 18M4.465 4.465A10.95 10.95 0 0112 5c4.478 0 8.268 2.943 9.542 7-.344 1.096-.882 2.108-1.58 3.016M9.88 9.88a3 3 0 104.24 4.24M3 3l18 18" />
+                  </svg>
+                </button>
+              </label>
+
+              <button class="btn btn-second" type="submit">Cadastrar</button>
+            </form>
           </div>
         </div>
       </div>
