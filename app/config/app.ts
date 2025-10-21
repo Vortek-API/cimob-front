@@ -3,10 +3,10 @@ var btnSignup = document.querySelector("#signup");
 
 var body = document.querySelector("body");
 
-btnSignin.addEventListener("click", function () {
-  body.className = "sign-in-ts";
+btnSignin!.addEventListener("click", function () {
+  body!.className = "sign-in-ts";
 });
 
-btnSignup.addEventListener("click", function () {
-  body.className = "sign-up-ts";
+btnSignup!.addEventListener("click", function () {
+  body!.className = "sign-up-ts";
 })

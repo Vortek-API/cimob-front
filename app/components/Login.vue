@@ -26,7 +26,7 @@
         <div class="content second-content">
           <div class="column first-column-panel">
             <h2 class="title title-primary">Primeira vez no CIMOB?</h2>
-            <p class="description description-primary">se você é seu primeiro acesso no CIMOB por favor clique aqui</p>
+            <p class="description description-primary">se é seu primeiro acesso no CIMOB por favor clique aqui</p>
             <button @click="togglePanel" class="btn btn-primary">Cadastre-se</button>
           </div>
           <div class="column second-column-form">
@@ -128,7 +128,7 @@ import { createToast } from "mosha-vue-toastify";
 import imgCimo from "/images/cimob.png";
 
 import "mosha-vue-toastify/dist/style.css";
-// import { autenticarUsuario } from "~/services/autenticador-api"; // Descomente e ajuste o caminho se for usar
+import { autenticarUsuario } from "~/services/autenticador-api";
 
 // Importações do código de referência para logo (ajustar caminhos conforme sua estrutura de projeto)
 // import svgPathsImport from \'~/assets/svgPaths\'; // Se você estiver usando SVGs inline como no exemplo
@@ -177,16 +177,15 @@ const loginAdmin = async () => {
 
   loading.value = true;
   try {
-    // Exemplo de integração com sua API de autenticação
-    // const data = await autenticarUsuario({
-    //   userName: emailAdminCimob.value.trim(),
-    //   senha: senhaAdminCimob.value.trim(),
-    // });
+    const data = await autenticarUsuario({
+      email: emailAdminCimob.value.trim(),
+      senha: senhaAdminCimob.value.trim(),
+    });
 
-    // localStorage.setItem("token", data.accessToken);
+    localStorage.setItem("token", data.accessToken);
     console.log("Login Admin:", emailAdminCimob.value, senhaAdminCimob.value);
     toastSucesso("Login realizado com sucesso!");
-    // window.location.href = "/home"; // Redirecionar após login
+    window.location.href = "/home"; // Redirecionar após login
   } catch (error: any) {
     toastAviso("Erro ao autenticar, verifique suas credenciais.");
   } finally {
@@ -203,7 +202,6 @@ const cadastrarUserCimob = async () => {
 
   loading.value = true;
   try {
-    // Aqui tu chamaria a API de cadastro
     console.log("Cadastro:", {
       nome: nomeUserCimob.value.trim(),
       email: emailUserCimob.value.trim(),

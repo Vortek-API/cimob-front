@@ -1,8 +1,8 @@
 import type { Indicador } from '~/types/indicador'
+import { getApi } from "~/config/axios-config";
 
 export async function fetchIndicadores(regiaoId?: number, timestamp?: string): Promise<Indicador[]> {
-  const config = useRuntimeConfig();
-  let url = `${config.public.API_URL}/indicadores`;
+  let url = `/indicadores`;
   
   const params = new URLSearchParams();
   
@@ -18,14 +18,13 @@ export async function fetchIndicadores(regiaoId?: number, timestamp?: string): P
     url += `?${params.toString()}`;
   }
   
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('Erro ao buscar indicadores');
-  return await response.json();
+  const api = getApi();
+  const response = await api.get(url);
+  return response.data;
 }
 
 export async function fetchIndicesCriticos(regiaoId?: number, timestamp?: string): Promise<any[]> {
-  const config = useRuntimeConfig();
-  let url = `${config.public.API_URL}/indicadores/indices-criticos`;
+  let url = `/indicadores/indices-criticos`;
   
   const params = new URLSearchParams();
   
@@ -41,7 +40,7 @@ export async function fetchIndicesCriticos(regiaoId?: number, timestamp?: string
     url += `?${params.toString()}`;
   }
   
-  const response = await fetch(url);
-  if (!response.ok) throw new Error('Erro ao buscar índices críticos');
-  return await response.json();
+  const api = getApi();
+  const response = await api.get(url);
+  return response.data;
 }
