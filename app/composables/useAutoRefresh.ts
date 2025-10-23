@@ -2,7 +2,7 @@ import { ref, onMounted, onUnmounted, readonly } from 'vue'
 import { APP_CONFIG } from '~/config/app-config'
 
 export function useAutoRefresh(callback: () => void | Promise<void>, intervalMs?: number) {
-  const intervalId = ref<number | null>(null)
+  const intervalId = ref<ReturnType<typeof setInterval> | null>(null)
   const isActive = ref(false)
   
   const actualIntervalMs = intervalMs || APP_CONFIG.AUTO_REFRESH_INTERVAL_MS
