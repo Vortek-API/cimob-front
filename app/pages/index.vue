@@ -1,12 +1,26 @@
+<template>
+  <div>
+    <OpeningScreen v-if="showOpening" />
+    <div v-else>
+      <router-view />
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
-import { navigateTo } from '#app'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/store/authStore'
+import OpeningScreen from '~/pages/opening.vue'
 
-if (typeof window !== 'undefined') {
-  const auth = useAuthStore()
-  auth.token = localStorage.getItem('token')
-  auth.refreshToken = localStorage.getItem('refreshToken')
+const showOpening = ref(true)
+const router = useRouter()
+const auth = useAuthStore()
 
-  navigateTo(auth.isAuthenticated ? '/home' : '/login')
-}
+onMounted(() => {
+  setTimeout(() => {
+    showOpening.value = false
+    router.push(auth.isAuthenticated ? '/home' : '/login')
+  }, 3000)
+})
 </script>
