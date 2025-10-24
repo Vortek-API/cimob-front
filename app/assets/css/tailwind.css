@@ -1,7 +1,6 @@
-/* Ensure Nuxt UI tokens + keyframes are processed by Tailwind v4 */
-@import "@nuxt/ui/runtime/index.css";
-
+/* Tailwind core + Nuxt UI layer */
 @import "tailwindcss";
+@import "@nuxt/ui";
 
 /* Tailwind CSS v4 theme overrides */
 @theme {
