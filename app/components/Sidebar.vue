@@ -2,33 +2,45 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '~/store/authStore'
 import { ultimaAtualizacao } from '~/store/filtro'
 import { jwtDecode } from 'jwt-decode'
 
-const items: NavigationMenuItem[][] = [[{
-  label: 'Home',
-  icon: 'i-lucide-house',
-  active: true
-}, {
-  label: 'Mapa',
-  icon: 'i-lucide-map-pin-check-inside',
-  badge: '4'
-}, {
-  label: 'Dashboard',
-  icon: 'i-lucide-chart-no-axes-combined',
-  defaultOpen: true,
-  children: [{
-    label: 'Velocidade Média'
-  }, {
-    label: 'Excesso de Velocidade'
-  }, {
-    label: 'Tipos de Veículos'
-  }]
-}]]
+const route = useRoute()
 
-// --- Auth + user display
+const items: NavigationMenuItem[][] = [[
+  {
+    label: 'Home',
+    icon: 'i-lucide-house',
+    to: '/home',
+  },
+  {
+    label: 'Mapas',
+    icon: 'i-lucide-map-pin-check-inside',
+    to: '/map',
+  },
+  {
+    label: 'Dashboard',
+    icon: 'i-lucide-chart-no-axes-combined',
+    defaultOpen: true,
+    children: [
+      { 
+        label: 'Velocidade Média',
+        to: '/dashboard/velocidade-media', 
+      },
+      { 
+        label: 'Excesso de Velocidade',
+        to: '/dashboard/excesso-velocidade',
+      },
+      { 
+        label: 'Tipos de Veículos',
+        to: '/dashboard/tipos-veiculos',
+      }
+    ]
+  }
+]]
+
 const router = useRouter()
 const auth = useAuthStore()
 const email = ref('Usuário')
@@ -51,7 +63,6 @@ function logout () {
   router.push('/login')
 }
 
-// --- Last update (footer info)
 const formattedUpdatedAt = computed(() => {
   if (!ultimaAtualizacao?.value) return 'Nunca atualizado'
   const d = new Date(ultimaAtualizacao.value)
@@ -90,7 +101,6 @@ const formattedUpdatedAt = computed(() => {
         class="mt-auto"
       />
 
-      <!-- Última atualização abaixo do bloco Help & Support -->
       <div v-if="!collapsed" class="px-2 pt-2">
         <p class="text-xs text-muted">Última atualização: {{ formattedUpdatedAt }}</p>
       </div>
@@ -115,20 +125,16 @@ const formattedUpdatedAt = computed(() => {
 </template>
 
 <style scoped>
-/* Ícones herdam a mesma cor do texto */
 .cimo-sidebar :deep(.iconify) { color: currentColor !important; }
 
-/* Texto padrão azul nos links do menu */
 .cimo-sidebar :deep(nav a) { color: #1b3b82 !important; }
 
-/* Hover e ativo: texto branco e fundo azul escuro */
 .cimo-sidebar :deep(nav a:hover),
 .cimo-sidebar :deep(nav a[aria-current='page']) {
   color: #ffffff !important;
   background-color: #1e3f95 !important;
 }
 
-/* Ícones também ficam brancos em hover/ativo */
 .cimo-sidebar :deep(nav a:hover .iconify),
 .cimo-sidebar :deep(nav a[aria-current='page'] .iconify) {
   color: #ffffff !important;
