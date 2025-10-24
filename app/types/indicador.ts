@@ -5,6 +5,7 @@ export interface Indicador {
   indicadorId: number;
   nome: string;
   valor: number;
+  mnemonico: string;
   descricao: string;
   usuario: Usuario;
   eventos: Evento[];
