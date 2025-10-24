@@ -10,11 +10,14 @@
         <h1 class="text-4xl md:text-4xl font-bold tracking-wide text-blue-900">
           Índices críticos
         </h1>
-        <TabelaIndiciesCriticos class="mt-6 mb-12" max-height="calc(100vh - 420px)"/>
+        <TabelaIndiciesCriticos class="mt-6 mb-12" max-height="calc(100vh - 500px)"/>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  requiresAuth: true
+});
 </script>
