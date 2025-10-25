@@ -77,7 +77,7 @@
                   <p class="text-gray-800 mt-1">{{ indicator.descricao }}</p>
                 </div>
 
-                <div>
+                <!-- <div>
                   <label class="font-semibold text-gray-700">Fórmula de Cálculo</label>
                   <p class="text-gray-800 mt-1 font-mono bg-gray-100 p-2 rounded border border-gray-300 text-xs">
                     {{ indicator.formula }}
@@ -87,7 +87,7 @@
                 <div>
                   <label class="font-semibold text-gray-700">Unidade</label>
                   <p class="text-gray-800 mt-1">{{ indicator.unidade }}</p>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>

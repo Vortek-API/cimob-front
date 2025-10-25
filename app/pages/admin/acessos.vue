@@ -64,7 +64,7 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Nome</label>
               <input 
-                v-model="newUser.name" 
+                v-model="newUser.nome" 
                 type="text" 
                 placeholder="Nome completo"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -94,11 +94,11 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Permissão</label>
               <select 
-                v-model="newUser.role"
+                v-model="newUser.cargo"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               >
-                <option value="user">Usuário</option>
-                <option value="admin">Admin</option>
+                <option :value="CargoUsuario.USUARIO">Usuário</option>
+                <option :value="CargoUsuario.ADMIN">Admin</option>
               </select>
             </div>
 
@@ -130,10 +130,10 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
-                <tr v-for="user in users" :key="user.id" class="hover:bg-gray-50 transition-colors">
+                <tr v-for="user in users" :key="user.usuarioId" class="hover:bg-gray-50 transition-colors">
                   <td class="px-6 py-4">
                     <input 
-                      v-model="user.name" 
+                      v-model="user.nome" 
                       type="text"
                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
                     />
@@ -154,11 +154,11 @@
                   </td>
                   <td class="px-6 py-4">
                     <select 
-                      v-model="user.role"
+                      v-model="user.cargo"
                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-sm"
                     >
-                      <option value="user">Usuário</option>
-                      <option value="admin">Admin</option>
+                      <option :value="CargoUsuario.USUARIO">Usuário</option>
+                      <option :value="CargoUsuario.ADMIN">Admin</option>
                     </select>
                   </td>
                   <td class="px-6 py-4">
@@ -173,7 +173,7 @@
                         Salvar
                       </button>
                       <button 
-                        @click="deleteUser(user.id)"
+                        @click="deleteUser(user.usuarioId)"
                         class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-sm flex items-center gap-1"
                       >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +189,7 @@
           </div>
 
           <!-- Mensagem quando não há usuários -->
-          <div v-if="users.length === 0" class="text-center py-12">
+          <div v-if="users?.length == 0" class="text-center py-12">
             <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3.5A1.5 1.5 0 012 19.5V5.5A1.5 1.5 0 013.5 4h17A1.5 1.5 0 0122 5.5v14a1.5 1.5 0 01-1.5 1.5H15z"></path>
             </svg>
@@ -204,60 +204,91 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { createUsuario, deleteUsuario, getUsuarios, updateUsuario } from '~/services/usuario-api';
+import { CargoUsuario, type Usuario } from '~/types/usuario'
 
-interface User {
-  id: number
-  name: string
-  email: string
-  cpf: string
-  role: 'user' | 'admin'
-}
+const users = ref<Usuario[]>();
 
-const users = ref<User[]>([
-  { id: 1, name: 'João da Silva', email: 'joao.silva@example.com', cpf: '111.222.333-44', role: 'user' },
-  { id: 2, name: 'Maria Oliveira', email: 'maria.oliveria@example.com', cpf: '555.666.777-88', role: 'admin' },
-  { id: 3, name: 'Pedro Santos', email: 'pedro.santos@example.com', cpf: '999.000.111-22', role: 'user' },
-])
+onMounted(async () => {
+   fetchUsers();
+});
 
-const newUser = ref<Omit<User, 'id'>>({
-  name: '',
+const newUser = ref<Omit<Usuario, 'usuarioId'>>({
+  nome: '',
   email: '',
   cpf: '',
-  role: 'user',
+  cargo: CargoUsuario.USUARIO,
 })
 
 // Propriedades computadas para estatísticas
-const totalUsers = computed(() => users.value.length)
+const totalUsers = computed(() => users.value?.length ?? 0)
 
 const usuariosComuns = computed(() => 
-  users.value.filter(u => u.role === 'user').length
+  users.value?.filter(u => u.cargo == CargoUsuario.USUARIO).length ?? 0
 )
 
 const administradores = computed(() => 
-  users.value.filter(u => u.role === 'admin').length
+  users.value?.filter(u => u.cargo == CargoUsuario.ADMIN).length ?? 0
 )
 
 const addNewUser = () => {
-  if (newUser.value.name && newUser.value.email && newUser.value.cpf) {
-    const newId = Math.max(...users.value.map(u => u.id), 0) + 1
-    users.value.push({ ...newUser.value, id: newId })
-    newUser.value = { name: '', email: '', cpf: '', role: 'user' }
-    console.log('Novo usuário adicionado:', users.value)
+  if (newUser.value.nome && newUser.value.email && newUser.value.cpf) {
+    createUsuario(newUser.value as Usuario).then(() => {
+      toastSucesso("Usuário adicionado com sucesso!");
+
+      newUser.value = { nome: '', email: '', cpf: '', cargo: CargoUsuario.USUARIO };
+
+    setTimeout(() => {
+      fetchUsers();
+    }, 300);
+
+    }).catch((error) => {
+      console.error('Erro ao adicionar usuário:', error)
+      toastAviso("Ocorreu um erro ao adicionar o usuário. Por favor, tente novamente.");
+    });
   } else {
-    alert('Por favor, preencha todos os campos para adicionar um novo usuário.')
+    toastAviso("Preencha todos os campos!");
   }
 }
 
-const updateUser = (user: User) => {
-  console.log('Atualizando usuário:', user)
-  alert(`Usuário ${user.name} atualizado com sucesso!`)
+const updateUser = (user: Usuario) => {
+  if (user.nome && user.email && user.cpf) {
+    updateUsuario(user as Usuario).then(() => {
+      toastSucesso("Usuário atualizado com sucesso!");
+
+    setTimeout(() => {
+      fetchUsers();
+    }, 300);
+
+    }).catch((error) => {
+      console.error('Erro ao atualizar usuário:', error)
+      toastAviso("Ocorreu um erro ao atualizar o usuário. Por favor, tente novamente.");
+    });
+  } else {
+    toastAviso("Preencha todos os campos!");
+  }
 }
 
 const deleteUser = (userId: number) => {
   if (confirm('Tem certeza que deseja excluir este usuário?')) {
-    users.value = users.value.filter(user => user.id !== userId)
-    console.log('Usuário excluído com ID:', userId)
+    users.value = users.value!.filter(user => user.usuarioId !== userId)
+    deleteUsuario(userId).then(() => {
+      toastSucesso("Usuário excluído com sucesso!")}).catch((error) => {
+      console.error('Erro ao excluir usuário:', error);
+      toastAviso("Ocorreu um erro ao excluir o usuário. Por favor, tente novamente.");
+    });
   }
+}
+
+async function fetchUsers() {
+  const data = await getUsuarios();
+    users.value = data.map((item: Usuario) => ({ 
+      usuarioId: item.usuarioId,
+      nome: item.nome,
+      cargo: item.cargo,
+      cpf: item.cpf,
+      email: item.email,
+     }))
 }
 </script>
 
