@@ -23,6 +23,7 @@
             <div class="flex items-center justify-between mb-6 md:mb-8">
               <MenuRegiao />
               <button
+                v-if="auth.isAdmin"
                 @click="abrirModal"
                 class="ml-auto bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105"
               >

@@ -5,38 +5,26 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '~/store/authStore'
 import { ultimaAtualizacao } from '~/store/filtro'
 import { jwtDecode } from 'jwt-decode'
-import { getCargo } from '~/services/usuario-api'
+// import { getCargo } from '~/services/usuario-api' <-- REMOVIDO
 
 const router = useRouter()
 const route = useRoute()
 const auth = useAuthStore()
 
 const email = ref('Usuário')
-const isAdmin = ref(false)
-
-// 🧠 Função que busca o cargo do usuário
-async function fetchUserRole(userEmail: string) {
-  try {
-    const cargo = await getCargo(userEmail)
-    isAdmin.value = cargo.toLowerCase().includes('admin')
-    console.log('Cargo do usuário:', cargo, '| Admin?', isAdmin.value)
-  } catch (error) {
-    console.error('Erro ao buscar cargo do usuário:', error)
-    isAdmin.value = false
-  }
-}
+// const isAdmin = ref(false) <-- REMOVIDO
 
 // 🔐 Decodifica o token e pega o email
 onMounted(() => {
-  const token = localStorage.getItem('token')
+  const token = auth.token // ALTERAÇÃO: Usa o token do store
   if (token) {
     try {
       const decoded = jwtDecode<{ sub?: string; email?: string; nome?: string }>(token)
       const userEmail = decoded.email || decoded.sub || decoded.nome || 'Usuário'
       email.value = userEmail
-      if (userEmail !== 'Usuário') {
-        fetchUserRole(userEmail)
-      }
+      // if (userEmail !== 'Usuário') {
+      //   fetchUserRole(userEmail) <-- REMOVIDO
+      // }
     } catch (err) {
       console.error('Erro ao decodificar token:', err)
       email.value = 'Usuário'
@@ -71,9 +59,11 @@ const items: NavigationMenuItem[] = [
       { label: 'Excesso de Velocidade', to: '/dashboard/excesso-velocidade' },
       { label: 'Tipos de Veículos', to: '/dashboard/tipos-veiculos' },
     ],
-  },
-  // Só aparece se o usuário for admin
-  {
+  }
+]
+
+if(auth.isAdmin) {
+items.push({
     label: 'Administrador',
     icon: 'i-lucide-shield',
     defaultOpen: false,
@@ -81,9 +71,9 @@ const items: NavigationMenuItem[] = [
       { label: 'Logs', to: '/admin/logs' },
       { label: 'Acessos', to: '/admin/acessos' },
     ],
-    show: computed(() => isAdmin.value),
-  },
-]
+    show: computed(() => auth.isAdmin),
+  },)
+}
 
 // 🕒 Última atualização formatada
 const formattedUpdatedAt = computed(() => {
@@ -111,7 +101,7 @@ const formattedUpdatedAt = computed(() => {
 
       <UNavigationMenu
         :collapsed="collapsed"
-        :items="items.filter(i => i.show === undefined || i.show)"
+        :items="items.filter((i: { show: undefined }) => i.show === undefined || i.show)"
         orientation="vertical"
       />
 

@@ -22,10 +22,10 @@
 
 <script setup lang="ts">
 import { currentAlert } from "~/composables/useAlerts";
-import { watch } from "vue";
+import { watch } from "vue"; // ADIÇÃO: Importação de watch
 
 const alert = currentAlert;
-let timeoutId: NodeJS.Timeout | null = null;
+let timeoutId: NodeJS.Timeout | null = null; // ADIÇÃO: Variável para controlar o timeout
 
 const hideAlert = () => {
   if (timeoutId) {
@@ -35,6 +35,7 @@ const hideAlert = () => {
   currentAlert.value = null;
 };
 
+// ADIÇÃO: Lógica para fechar automaticamente após 5 segundos se não houver botões de ação
 watch(currentAlert, (newAlert) => {
   if (timeoutId) {
     clearTimeout(timeoutId);
@@ -43,7 +44,7 @@ watch(currentAlert, (newAlert) => {
   if (newAlert && (!newAlert.actions || newAlert.actions.length === 0)) {
     timeoutId = setTimeout(() => {
       hideAlert();
-    }, 3000);
+    }, 5000); // 5 segundos
   }
 });
 </script>
