@@ -81,7 +81,7 @@
 
               <label class="label-input">
                 <i class="far fa-user icon-modify"></i>
-                <input type="text" v-model="nomeUserCimob" placeholder="CPF">
+                <input type="text" v-model="cpfUserCimob" placeholder="CPF">
               </label>
 
               <label class="label-input">
@@ -126,7 +126,8 @@
 import { ref } from "vue";
 import imgCimo from "/images/cimob.png";
 
-import { autenticarUsuario } from "~/services/autenticador-api";
+import { autenticarUsuario, cadastrar } from "~/services/autenticador-api";
+import type { Usuario } from "~/types/usuario";
 
 // Importações do código de referência para logo (ajustar caminhos conforme sua estrutura de projeto)
 // import svgPathsImport from \'~/assets/svgPaths\'; // Se você estiver usando SVGs inline como no exemplo
@@ -135,6 +136,7 @@ import { autenticarUsuario } from "~/services/autenticador-api";
 const loginAdminCimob = ref(false); // controla se está na tela de login admin ou cadastro usuário
 
 // Dados Usuário CIMOB (para cadastro)
+const cpfUserCimob = ref("");
 const nomeUserCimob = ref("");
 const emailUserCimob = ref("");
 const senhaUserCimob = ref("");
@@ -186,19 +188,21 @@ const loginAdmin = async () => {
 
 // Cadastro Usuário
 const cadastrarUserCimob = async () => {
-  if (!nomeUserCimob.value || !emailUserCimob.value || !senhaUserCimob.value) {
+  if (!nomeUserCimob.value || !emailUserCimob.value || !senhaUserCimob.value || !cpfUserCimob.value) {
     toastAviso("Preencha todos os campos!");
     return;
   }
 
   loading.value = true;
   try {
-    console.log("Cadastro:", {
-      nome: nomeUserCimob.value.trim(),
-      email: emailUserCimob.value.trim(),
-      senha: senhaUserCimob.value.trim(),
-    });
+    var usuario: Usuario = {} as Usuario;
+    usuario.nome = nomeUserCimob.value.trim();
+    usuario.email = emailUserCimob.value.trim();
+    usuario.senha = senhaUserCimob.value.trim();
+    usuario.cpf = cpfUserCimob.value.trim();
 
+    cadastrar(usuario);
+    
     toastSucesso("Usuário cadastrado com sucesso!");
   } catch (error: any) {
     toastAviso("Erro ao cadastrar usuário.");

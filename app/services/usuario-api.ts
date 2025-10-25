@@ -38,3 +38,10 @@ export async function deleteUsuario(usuarioId: number): Promise<void>{
   await api.delete(`/usuario/${usuarioId}`);
 }
 
+export async function getUsuarioByEmail(email: string): Promise<Usuario>{
+  const api = getApi();
+  const response = await api.get(`/usuario/email/${email}`);
+
+  return response.data;
+}
+

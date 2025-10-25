@@ -1,4 +1,5 @@
 import { getApi } from "~/config/axios-config";
+import type { Usuario } from "~/types/usuario";
 
 // Interfaces de request e response
 export interface LoginRequest {
@@ -29,6 +30,13 @@ export async function refreshToken(token: string): Promise<LoginResponse> {
 export async function logout(email: string): Promise<void> {
   const api = getApi('/auth');
   await api.post(`/logout?email=${email}`);
+}
+
+export async function cadastrar(usuario: Usuario): Promise<Usuario> {
+  const api = getApi('/auth');
+  const { data } = await api.post<Usuario>("/cadastrar", usuario);
+
+  return data;
 }
 
 export default getApi;
