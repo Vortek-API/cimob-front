@@ -1,12 +1,32 @@
-/* Ensure Nuxt UI tokens + keyframes are processed by Tailwind v4 */
-@import "@nuxt/ui/runtime/index.css";
-
+/* Tailwind core + Nuxt UI layer */
 @import "tailwindcss";
+@import "@nuxt/ui";
 
 /* Tailwind CSS v4 theme overrides */
 @theme {
   --font-sans: "Ruda", ui-sans-serif, system-ui, sans-serif;
 }
+
+/* Override Nuxt UI default tokens (global) */
+@layer base {
+  :root {
+    /* Map primary to blue (active states, accents) */
+    --ui-color-primary-600: #234ea5;
+    --ui-color-primary-700: #1e3f95;
+
+    /* Force neutral tones to blue-ish (icons/text defaults often use neutral-700) */
+    --ui-color-neutral-500: #1b3b82;
+    --ui-color-neutral-600: #234ea5;
+    --ui-color-neutral-700: #1e3f95;
+
+    /* Text tokens to align with the same palette */
+    --ui-text-default: #1b3b82;
+    --ui-text-muted: #3c5aa8;
+    --ui-text-dimmed: #1b3b82;
+  }
+}
+
+@layer base { :root { --ui-color-primary-50: var(--color-blue-50); --ui-color-primary-100: var(--color-blue-100); --ui-color-primary-200: var(--color-blue-200); --ui-color-primary-300: var(--color-blue-300); --ui-color-primary-400: var(--color-blue-400); --ui-color-primary-500: var(--color-blue-500); --ui-color-primary-600: #234ea5; --ui-color-primary-700: #1e3f95; --ui-color-primary-800: var(--color-blue-800); --ui-color-primary-900: var(--color-blue-900); --ui-color-primary-950: var(--color-blue-950); } }
 
 input[type="password"]::-webkit-reveal,
 input[type="password"]::-webkit-clear-button {

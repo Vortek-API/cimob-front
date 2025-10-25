@@ -15,6 +15,11 @@ export default defineNuxtConfig({
     public: {
       API_URL: process.env.API_URL,
       MAPTILER_API_KEY: process.env.MAPTILER_API_KEY,
+      // Bypass auth guards during local development
+      // Default: validação ativa. Só faz bypass quando explicitamente solicitado.
+      AUTH_BYPASS: process.env.NUXT_AUTH_BYPASS != null
+        ? process.env.NUXT_AUTH_BYPASS === '1'
+        : false
     }
   },
   colorMode: {
