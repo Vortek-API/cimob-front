@@ -8,6 +8,7 @@ export type Card = {
   valor: number
   circulo: string
   mnemonico: string
+  descricao: string
   // to: string
 }
 
@@ -26,6 +27,7 @@ export async function reloadIndicadores(regiaoId?: number, timestamp?: string) {
       valor: indicador.valor,
       circulo: getCor(indicador.valor),
       mnemonico: indicador.mnemonico,
+      descricao: indicador.descricao,
       // to: '/database'
     }));
   } catch (err: any) {

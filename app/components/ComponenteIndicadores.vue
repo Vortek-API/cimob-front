@@ -142,7 +142,7 @@
               </div>
 
               <!-- Informações Adicionais (se disponíveis) -->
-              <div v-if="indicadorSelecionado?.detalhes" class="mb-8">
+              <!-- <div v-if="indicadorSelecionado?.detalhes" class="mb-8">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Informações Adicionais</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div v-for="(valor, chave) in indicadorSelecionado.detalhes" :key="chave" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -150,7 +150,7 @@
                     <p class="text-lg font-semibold text-gray-900 mt-1">{{ valor }}</p>
                   </div>
                 </div>
-              </div>
+              </div> -->
 
               <!-- Rodapé do Modal -->
               <div class="border-t border-gray-200 pt-6 flex gap-3">
@@ -171,17 +171,18 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { cards, isLoadingIndicadores, indicadoresError } from '~/store/indicadores'
+import { cards, isLoadingIndicadores, indicadoresError, type Card } from '~/store/indicadores'
 import { useIndicadoresAutoRefresh } from '~/composables/useIndicadoresAutoRefresh'
+import type { Indicador } from '~/types/indicador'
 
 useIndicadoresAutoRefresh()
 
 // Estado do Modal
 const modalAberto = ref(false)
-const indicadorSelecionado = ref<any>(null)
+const indicadorSelecionado = ref<Card>();
 
 // Funções do Modal
-const abrirDetalhes = (card: any) => {
+const abrirDetalhes = (card: Card) => {
   indicadorSelecionado.value = card
   modalAberto.value = true
   // Prevenir scroll do body quando modal está aberto
@@ -190,7 +191,6 @@ const abrirDetalhes = (card: any) => {
 
 const fecharModal = () => {
   modalAberto.value = false
-  indicadorSelecionado.value = null
   // Restaurar scroll do body
   document.body.style.overflow = 'auto'
 }
