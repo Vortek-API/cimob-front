@@ -26,6 +26,26 @@
           {{ item.label }}
         </button>
       </template>
+      
+      <!-- Navegação Administrador com controle de acesso -->
+      <div v-if="isAdmin">
+        <SidebarDropdown label="Administrador">
+          <RouterLink
+            to="/admin/logs"
+            class="block px-6 py-2 rounded text-black hover:bg-blue-200 transition-colors font-semibold text-sm pl-10"
+            :class="route.path.startsWith('/admin/logs') ? 'bg-blue-200 border-l-4 border-blue-600 pl-9 font-medium' : ''"
+          >
+            Logs
+          </RouterLink>
+          <RouterLink
+            to="/admin/acessos"
+            class="block px-6 py-2 rounded text-black hover:bg-blue-200 transition-colors font-semibold text-sm pl-10"
+            :class="route.path.startsWith('/admin/acessos') ? 'bg-blue-200 border-l-4 border-blue-600 pl-9 font-medium' : ''"
+          >
+            Acessos
+          </RouterLink>
+        </SidebarDropdown>
+      </div>
     </nav>
 
     <!-- Rodapé -->
@@ -55,18 +75,27 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import SidebarDropdown from '~/components/SidebarDropdown.vue' // Assumindo que o componente está em ~/components/SidebarDropdown.vue
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '~/store/authStore'
 import { ultimaAtualizacao } from '~/store/filtro'
 import {jwtDecode} from 'jwt-decode'
+import { getCargo } from '~/services/usuario-api' // Assumindo que o arquivo está em ~/authService.ts
+// import axios from 'axios' // Removido por não ser mais necessário aqui
 
 type Item = { label: string; to?: string }
+const selectedAdminSection = ref<'logs' | 'acessos' | null>(null)
 
 // Props com default items
+// Definindo o componente Dropdown para uso no template
+// O componente SidebarDropdown será criado na próxima fase
+// A importação já foi adicionada acima.
+
 const props = withDefaults(defineProps<{ items?: Item[] }>(), {
   items: () => [
     { label: 'Home', to: '/home' },
     { label: 'Mapas', to: '/map' },
+    
     // { label: 'Base de dados', to: '/database' },
   ],
 })
@@ -80,12 +109,30 @@ const items = computed(() => props.items ?? [])
 
 // --- Username (client-side only)
 const email = ref('Usuário')
+const isAdmin = ref(false)
+
+async function fetchUserRole(userEmail: string) {
+  try {
+    const cargo = await getCargo(userEmail)
+    console.log('Cargo do usuário:', cargo)
+    isAdmin.value = cargo.toLowerCase().includes('admin')  // Modificado para ser mais flexível
+    console.log('É admin?', isAdmin.value)
+  } catch (error) {
+    console.error('Erro ao buscar cargo do usuário:', error)
+    isAdmin.value = false
+  }
+}
+
 onMounted(() => {
   const token = localStorage.getItem('token')
   if (token) {
     try {
       const decoded = jwtDecode<{ sub?: string; email?: string; nome?: string }>(token)
-      email.value = decoded.email || decoded.sub || decoded.nome || 'Usuário'
+      const userEmail = decoded.email || decoded.sub || decoded.nome || 'Usuário'
+      email.value = userEmail
+      if (userEmail !== 'Usuário') {
+        fetchUserRole(userEmail)
+      }
     } catch (err) {
       console.error('Erro ao decodificar token:', err)
       email.value = 'Usuário'
@@ -123,3 +170,4 @@ aside {
   font-family: 'Nunito', sans-serif;
 }
 </style>
+
