@@ -14,6 +14,7 @@ const auth = useAuthStore()
 const email = ref('Usuário')
 const isAdmin = ref(false)
 
+// 🧠 Função que busca o cargo do usuário
 async function fetchUserRole(userEmail: string) {
   try {
     const cargo = await getCargo(userEmail)
@@ -25,6 +26,7 @@ async function fetchUserRole(userEmail: string) {
   }
 }
 
+// 🔐 Decodifica o token e pega o email
 onMounted(() => {
   const token = localStorage.getItem('token')
   if (token) {
@@ -42,13 +44,14 @@ onMounted(() => {
   }
 })
 
+// 🚪 Logout
 function logout() {
   auth.logout()
   router.push('/login')
 }
 
-// Itens padrão
-const items: NavigationMenuItem[][] = [[
+// 🧭 Menu de navegação (sem array duplo, tipagem corrigida)
+const items: NavigationMenuItem[] = [
   {
     label: 'Home',
     icon: 'i-lucide-house',
@@ -66,8 +69,8 @@ const items: NavigationMenuItem[][] = [[
     children: [
       { label: 'Velocidade Média', to: '/dashboard/velocidade-media' },
       { label: 'Excesso de Velocidade', to: '/dashboard/excesso-velocidade' },
-      { label: 'Tipos de Veículos', to: '/dashboard/tipos-veiculos' }
-    ]
+      { label: 'Tipos de Veículos', to: '/dashboard/tipos-veiculos' },
+    ],
   },
   // Só aparece se o usuário for admin
   {
@@ -79,9 +82,10 @@ const items: NavigationMenuItem[][] = [[
       { label: 'Acessos', to: '/admin/acessos' },
     ],
     show: computed(() => isAdmin.value),
-  }
-]]
+  },
+]
 
+// 🕒 Última atualização formatada
 const formattedUpdatedAt = computed(() => {
   if (!ultimaAtualizacao?.value) return 'Nunca atualizado'
   const d = new Date(ultimaAtualizacao.value)
@@ -107,9 +111,8 @@ const formattedUpdatedAt = computed(() => {
 
       <UNavigationMenu
         :collapsed="collapsed"
-        :items="items[0].filter(i => i.show === undefined || i.show)"
+        :items="items.filter(i => i.show === undefined || i.show)"
         orientation="vertical"
-        :ui="{ icon: 'text-current' }"
       />
 
       <div v-if="!collapsed" class="px-2 pt-2 mt-auto">
@@ -120,7 +123,7 @@ const formattedUpdatedAt = computed(() => {
     <template #footer="{ collapsed }">
       <div class="w-full px-2 py-2">
         <div class="flex items-center gap-3" :class="collapsed ? 'justify-center' : ''">
-          <UAvatar :alt="email.charAt(0).toUpperCase()" size="md" :ui="{ rounded: 'rounded-md' }" />
+          <UAvatar :alt="email.charAt(0).toUpperCase()" size="md" class="rounded-md" />
           <div v-if="!collapsed" class="min-w-0 flex-1">
             <p class="text-sm font-medium truncate">{{ email }}</p>
             <UButton
@@ -149,9 +152,13 @@ const formattedUpdatedAt = computed(() => {
 </template>
 
 <style scoped>
-.cimo-sidebar :deep(.iconify) { color: currentColor !important; }
+.cimo-sidebar :deep(.iconify) {
+  color: currentColor !important;
+}
 
-.cimo-sidebar :deep(nav a) { color: #1b3b82 !important; }
+.cimo-sidebar :deep(nav a) {
+  color: #1b3b82 !important;
+}
 
 .cimo-sidebar :deep(nav a:hover),
 .cimo-sidebar :deep(nav a[aria-current='page']) {
