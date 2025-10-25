@@ -128,6 +128,7 @@ import imgCimo from "/images/cimob.png";
 
 import { autenticarUsuario, cadastrar } from "~/services/autenticador-api";
 import type { Usuario } from "~/types/usuario";
+import { alertSucesso, alertAviso } from "~/composables/useAlerts";
 
 // Importações do código de referência para logo (ajustar caminhos conforme sua estrutura de projeto)
 // import svgPathsImport from \'~/assets/svgPaths\'; // Se você estiver usando SVGs inline como no exemplo
@@ -164,7 +165,7 @@ const toggleSenhaAdmin = () => (mostrarSenhaAdmin.value = !mostrarSenhaAdmin.val
 // Login Administrador
 const loginAdmin = async () => {
   if (!emailAdminCimob.value || !senhaAdminCimob.value) {
-    toastAviso("Preencha todos os campos!");
+    alertAviso("Preencha todos os campos!");
     return;
   }
 
@@ -177,10 +178,10 @@ const loginAdmin = async () => {
 
     localStorage.setItem("token", data.accessToken);
     console.log("Login Admin:", emailAdminCimob.value, senhaAdminCimob.value);
-    toastSucesso("Login realizado com sucesso!");
+    alertSucesso("Login realizado com sucesso!");
     window.location.href = "/home"; // Redirecionar após login
   } catch (error: any) {
-    toastAviso("Erro ao autenticar, verifique suas credenciais.");
+    alertAviso("Erro ao autenticar, verifique suas credenciais.");
   } finally {
     loading.value = false;
   }
@@ -189,7 +190,7 @@ const loginAdmin = async () => {
 // Cadastro Usuário
 const cadastrarUserCimob = async () => {
   if (!nomeUserCimob.value || !emailUserCimob.value || !senhaUserCimob.value || !cpfUserCimob.value) {
-    toastAviso("Preencha todos os campos!");
+    alertAviso("Preencha todos os campos!");
     return;
   }
 
@@ -203,9 +204,9 @@ const cadastrarUserCimob = async () => {
 
     cadastrar(usuario);
     
-    toastSucesso("Usuário cadastrado com sucesso!");
+    alertSucesso("Usuário cadastrado com sucesso!");
   } catch (error: any) {
-    toastAviso("Erro ao cadastrar usuário.");
+    alertAviso("Erro ao cadastrar usuário.");
   } finally {
     loading.value = false;
   }
