@@ -1,67 +1,177 @@
 <template>
-  <div class="flex h-screen w-full">
+  <div class="flex h-screen w-full bg-gray-50">
+    <!-- Sidebar (importado) -->
     <Sidebar />
-    <div class="flex-1 overflow-auto bg-gray-50">
-      <div class="p-8 main-content-wrapper">
-        <div class="log-management-card">
-          <div class="card-background"></div>
-          <div class="decorative-line"></div>
+    
+    <div class="flex-1 overflow-auto">
+      <div class="p-6 md:p-8 w-full">
+        <!-- HEADER COM TÍTULO -->
+        <div class="mb-8">
+          <h1 class="text-4xl font-bold text-gray-900 mb-2">Logs de Atividades do Sistema</h1>
+          <p class="text-gray-600">Monitore e acompanhe todas as atividades do sistema</p>
+        </div>
 
-          <div class="content-wrapper">
-            <h2 class="title">Logs de Atividades do Sistema</h2>
-            
-            <!-- Card de Estatísticas (Total de Logs) -->
-            <div class="stats-card">
-              <div class="stat-item">
-                <i class="fas fa-history icon-blue"></i>
-                <div class="stat-info">
-                  <span class="stat-value">{{ totalLogs }}</span>
-                  <span class="stat-label">Total de Registros de Logs</span>
-                </div>
+        <!-- CARD DE ESTATÍSTICAS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-4">
+              <div class="bg-blue-100 p-3 rounded-lg">
+                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Total de Registros</p>
+                <p class="text-3xl font-bold text-gray-900">{{ totalLogs }}</p>
               </div>
             </div>
-            <!-- FIM Card de Estatísticas -->
+          </div>
 
-            <!-- Seção de Filtros (Opcional, mas útil para Logs) -->
-            <div class="filter-section add-user-section">
-              <h3>Filtrar Logs</h3>
-              <div class="input-group">
-                <input type="text" placeholder="Buscar por Usuário ou Indicador" />
-                <select>
-                  <option value="">Todos os Indicadores</option>
-                  <option value="usuario">Usuário</option>
-                  <option value="sistema">Sistema</option>
-                  <option value="financeiro">Financeiro</option>
-                </select>
-                <input type="date" placeholder="Data Inicial" />
-                <input type="date" placeholder="Data Final" />
-                <button class="btn btn-primary">Aplicar Filtros</button>
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-4">
+              <div class="bg-green-100 p-3 rounded-lg">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Logs do Sistema</p>
+                <p class="text-3xl font-bold text-gray-900">{{ logsDoSistema }}</p>
               </div>
             </div>
-            <!-- FIM Seção de Filtros -->
+          </div>
 
-            <div class="log-list user-list">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Usuário</th>
-                    <th>Indicador</th>
-                    <th>Descrição</th>
-                    <th>Data</th>
-                    <th>Ação</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="log in logs" :key="log.id">
-                    <td>{{ log.usuario }}</td>
-                    <td><span :class="['indicator-badge', log.indicador.toLowerCase()]">{{ log.indicador }}</span></td>
-                    <td>{{ log.descricao }}</td>
-                    <td>{{ formatDate(log.data) }}</td>
-                    <td><button @click="viewDetails(log)" class="btn btn-info">Ver Detalhes</button></td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-4">
+              <div class="bg-cyan-100 p-3 rounded-lg">
+                <svg class="w-8 h-8 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Logs de Usuário</p>
+                <p class="text-3xl font-bold text-gray-900">{{ logsDeUsuario }}</p>
+              </div>
             </div>
+          </div>
+
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-4">
+              <div class="bg-amber-100 p-3 rounded-lg">
+                <svg class="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-gray-600 text-sm font-medium">Logs Financeiros</p>
+                <p class="text-3xl font-bold text-gray-900">{{ logsFinanceiros }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEÇÃO DE FILTROS -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+          <h2 class="text-xl font-bold text-gray-900 mb-6">Filtrar Logs</h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Buscar por Usuário ou Indicador</label>
+              <input 
+                type="text" 
+                placeholder="Digite aqui..."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Indicador</label>
+              <select 
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              >
+                <option value="">Todos os Indicadores</option>
+                <option value="usuario">Usuário</option>
+                <option value="sistema">Sistema</option>
+                <option value="financeiro">Financeiro</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Data Inicial</label>
+              <input 
+                type="date"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Data Final</label>
+              <input 
+                type="date"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+            </div>
+
+            <div class="flex items-end">
+              <button 
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                </svg>
+                Aplicar Filtros
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TABELA DE LOGS -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-gray-50 border-b border-gray-200">
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Usuário</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Indicador</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Descrição</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Data</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Ação</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <tr v-for="log in logs" :key="log.id" class="hover:bg-gray-50 transition-colors">
+                  <td class="px-6 py-4 text-sm text-gray-900">{{ log.usuario }}</td>
+                  <td class="px-6 py-4">
+                    <span :class="['px-3 py-1 rounded-full text-xs font-semibold text-white', getIndicadorColor(log.indicador)]">
+                      {{ log.indicador }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-700">{{ log.descricao }}</td>
+                  <td class="px-6 py-4 text-sm text-gray-600">{{ formatDate(log.data) }}</td>
+                  <td class="px-6 py-4">
+                    <button 
+                      @click="viewDetails(log)"
+                      class="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-200 text-sm flex items-center gap-1"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                      Ver Detalhes
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Mensagem quando não há logs -->
+          <div v-if="logs.length === 0" class="text-center py-12">
+            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <p class="text-gray-500 text-lg">Nenhum log encontrado</p>
+            <p class="text-gray-400 text-sm">Tente ajustar os filtros ou verifique o período selecionado</p>
           </div>
         </div>
       </div>
@@ -70,15 +180,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed } from 'vue'
 
 interface Log {
-  id: number;
-  usuario: string;
-  indicador: 'Usuário' | 'Sistema' | 'Financeiro';
-  descricao: string;
-  data: Date;
-  acao: string;
+  id: number
+  usuario: string
+  indicador: 'Usuário' | 'Sistema' | 'Financeiro'
+  descricao: string
+  data: Date
+  acao: string
 }
 
 const logs = ref<Log[]>([
@@ -87,405 +197,45 @@ const logs = ref<Log[]>([
   { id: 3, usuario: 'pedro.santos', indicador: 'Financeiro', descricao: 'Fatura #2025001 gerada.', data: new Date('2025-10-22T15:30:00'), acao: 'Geração de Fatura' },
   { id: 4, usuario: 'joao.silva', indicador: 'Usuário', descricao: 'Alteração de permissão do usuário X.', data: new Date('2025-10-22T10:00:00'), acao: 'Alteração' },
   { id: 5, usuario: 'sistema', indicador: 'Sistema', descricao: 'Atualização de biblioteca de segurança.', data: new Date('2025-10-21T02:00:00'), acao: 'Atualização' },
-]);
+])
 
-const totalLogs = computed(() => logs.value.length);
+// Propriedades computadas para estatísticas
+const totalLogs = computed(() => logs.value.length)
+
+const logsDoSistema = computed(() => 
+  logs.value.filter(l => l.indicador === 'Sistema').length
+)
+
+const logsDeUsuario = computed(() => 
+  logs.value.filter(l => l.indicador === 'Usuário').length
+)
+
+const logsFinanceiros = computed(() => 
+  logs.value.filter(l => l.indicador === 'Financeiro').length
+)
 
 const formatDate = (date: Date): string => {
-  return date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-};
+  return date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+}
+
+const getIndicadorColor = (indicador: string): string => {
+  switch (indicador.toLowerCase()) {
+    case 'usuário':
+      return 'bg-cyan-600'
+    case 'sistema':
+      return 'bg-green-600'
+    case 'financeiro':
+      return 'bg-amber-600'
+    default:
+      return 'bg-gray-600'
+  }
+}
 
 const viewDetails = (log: Log) => {
-  alert(`Detalhes do Log ID ${log.id}:\nUsuário: ${log.usuario}\nDescrição: ${log.descricao}\nData: ${formatDate(log.data)}`);
-};
+  alert(`Detalhes do Log ID ${log.id}:\nUsuário: ${log.usuario}\nDescrição: ${log.descricao}\nData: ${formatDate(log.data)}`)
+}
 </script>
 
 <style scoped>
-/* Importando os estilos globais e variáveis de cor */
-@import url('https://use.fontawesome.com/releases/v5.8.2/css/all.css');
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
-
-:root {
-  --primary-color: #1a73e8; /* Azul mais moderno/Google-like */
-  --secondary-color: #6c757d;
-  --success-color: #28a745;
-  --danger-color: #dc3545;
-  --info-color: #17a2b8; /* Cor para o botão de detalhes/info */
-  --warning-color: #ffc107;
-  --light-color: #f8f9fa;
-  --dark-color: #343a40;
-  --text-color: #5f6368; /* Cinza mais suave para texto */
-  --header-color: #3c4043; /* Cinza escuro para cabeçalhos */
-  --card-bg: #ffffff; /* Fundo branco puro */
-  --card-border-radius: 15px;
-  --box-shadow: 0 1px 3px 0 rgba(60, 64, 67, 0.3), 0 4px 8px 3px rgba(60, 64, 67, 0.15); /* Sombra mais moderna e sutil */
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: 'Nunito', sans-serif;
-  line-height: 1.6;
-  color: var(--text-color);
-  background-color: #f4f4f4;
-}
-
-.flex {
-  display: flex;
-}
-
-.h-screen {
-  height: 100vh;
-}
-
-.w-full {
-  width: 100%;
-}
-
-.overflow-auto {
-  overflow: auto;
-}
-
-.bg-gray-50 {
-  background-color: #f9fafb;
-}
-
-.p-8 {
-  padding: 2rem;
-}
-
-/* Estilo para centralizar o conteúdo */
-.main-content-wrapper {
-  display: flex;
-  justify-content: center; /* Centraliza horizontalmente */
-  align-items: flex-start; /* Alinha o conteúdo ao topo */
-  min-height: 100%;
-  padding: 2rem;
-}
-
-.log-management-card {
-  background-color: var(--card-bg);
-  border-radius: var(--card-border-radius);
-  box-shadow: var(--box-shadow);
-  width: 95%;
-  max-width: 1400px; /* Aumentado um pouco o max-width para logs */
-  height: auto;
-  min-height: calc(100vh - 4rem);
-  position: relative;
-  overflow: hidden;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 1;
-}
-
-.card-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: var(--primary-color, #CDE8FF);
-  opacity: 0.1;
-  z-index: -1;
-  border-radius: var(--card-border-radius);
-}
-
-.logo-container {
-  width: 120px;
-  margin-bottom: 20px;
-}
-
-.logo-container img {
-  max-width: 100%;
-  height: auto;
-}
-
-.decorative-line {
-  width: 100%;
-  height: 2px;
-  background-color: var(--header-color);
-  margin-bottom: 25px;
-}
-
-.content-wrapper {
-  width: 100%;
-  color: var(--text-color);
-  flex-grow: 1;
-  overflow-y: auto;
-}
-
-.title {
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: #1e3a8a;
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-/* Estilos para o Card de Estatísticas */
-.stats-card {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 30px;
-}
-
-.stat-item {
-  background-color: var(--primary-color);
-  color: #1e3a8a;
-  padding: 20px 30px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-  min-width: 350px; /* Um pouco maior para o texto de logs */
-}
-
-.stat-item .icon-blue {
-  font-size: 2.5rem;
-  color: #1e3a8a;
-}
-
-.stat-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.stat-value {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.stat-label {
-  font-size: 1rem;
-  font-weight: 400;
-  opacity: 0.9;
-}
-
-/* Estilos para a seção de Filtros (reutilizando add-user-section) */
-.filter-section {
-  background-color: #ffffff;
-  padding: 25px;
-  border-radius: 12px;
-  margin-bottom: 30px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.filter-section h3 {
-  font-size: 1.5rem;
-  color: #1e3a8a;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.input-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.input-group input, .input-group select {
-  flex-grow: 1;
-  flex-basis: 180px; /* Ajustado para caber mais itens */
-  padding: 12px 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 1rem;
-  color: var(--text-color);
-  transition: all 0.3s ease;
-}
-
-.input-group button {
-  flex: 0 0 auto;
-  padding: 12px 25px;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-/* Estilos para a Tabela de Logs (reutilizando user-list) */
-.log-list table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin-top: 20px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e0e0e0;
-}
-
-.log-list th,
-.log-list td {
-  padding: 15px 15px;
-  border-bottom: 1px solid #e9ecef;
-  text-align: left;
-  vertical-align: middle;
-}
-
-.log-list th {
-  background-color: #f7f7f7;
-  color: var(--header-color);
-  font-weight: 700;
-  font-size: 0.95rem;
-  padding: 15px 15px;
-  border-bottom: 2px solid var(--primary-color);
-}
-
-.log-list tr:hover {
-  background-color: #e8f0fe;
-  transition: background-color 0.3s ease;
-}
-
-/* Estilo para os indicadores (badges) */
-.indicator-badge {
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 15px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: white;
-  text-transform: uppercase;
-}
-
-.indicator-badge.usuário {
-  background-color: var(--info-color);
-}
-
-.indicator-badge.sistema {
-  background-color: var(--success-color);
-}
-
-.indicator-badge.financeiro {
-  background-color: var(--warning-color);
-}
-
-/* Estilos de Botões */
-.btn {
-  padding: 10px 18px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-right: 8px;
-  transition: all 0.2s ease-in-out;
-}
-
-.btn:last-child {
-  margin-right: 0;
-}
-
-.btn-primary {
-  background-color: #0056b3;
-  color: white;
-  border: 1px solid var(--primary-color);
-}
-
-.btn-info {
-  background-color: #0d8393;
-  color: white;
-  border: 1px solid var(--info-color);
-}
-
-
-/* Responsividade */
-@media (max-width: 768px) {
-  .log-management-card {
-    width: 100%;
-    height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
-    padding: 15px;
-  }
-
-  .title {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-  }
-  
-  .stats-card {
-    margin-bottom: 20px;
-  }
-
-  .stat-item {
-    min-width: unset;
-    width: 100%;
-  }
-
-  .input-group {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .input-group input, .input-group select, .input-group button {
-    width: 100%;
-    min-width: unset;
-  }
-
-  .log-list th, .log-list td {
-    padding: 10px 5px;
-    font-size: 0.85rem;
-  }
-
-  .log-list table, .log-list thead, .log-list tbody, .log-list th, .log-list td, .log-list tr {
-    display: block;
-  }
-
-  .log-list thead tr {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-  }
-
-  .log-list tr {
-    border: 1px solid #dee2e6;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  .log-list td {
-    border: 1px solid transparent;
-    border-bottom: 1px solid #eee;
-    position: relative;
-    padding-left: 50%;
-    text-align: right;
-  }
-
-  .log-list td:before {
-    position: absolute;
-    top: 0;
-    left: 6px;
-    width: 45%;
-    padding-right: 10px;
-    white-space: nowrap;
-    text-align: left;
-    font-weight: bold;
-  }
-
-  .log-list td:nth-of-type(1):before { content: "Usuário:"; }
-  .log-list td:nth-of-type(2):before { content: "Indicador:"; }
-  .log-list td:nth-of-type(3):before { content: "Descrição:"; }
-  .log-list td:nth-of-type(4):before { content: "Data:"; }
-  .log-list td:nth-of-type(5):before { content: "Ação:"; }
-
-  .btn {
-    margin-bottom: 5px;
-    margin-right: 0;
-    width: 100%;
-  }
-}
+/* Estilos adicionais, se necessário */
 </style>
