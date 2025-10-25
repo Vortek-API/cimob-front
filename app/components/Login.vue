@@ -124,10 +124,8 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { createToast } from "mosha-vue-toastify";
 import imgCimo from "/images/cimob.png";
 
-import "mosha-vue-toastify/dist/style.css";
 import { autenticarUsuario } from "~/services/autenticador-api";
 
 // Importações do código de referência para logo (ajustar caminhos conforme sua estrutura de projeto)
@@ -149,13 +147,6 @@ const mostrarSenhaAdmin = ref(false);
 
 // Controle de loading (opcional, se for integrar com API)
 const loading = ref(false);
-
-// Toasts (necessário instalar mosha-vue-toastify)
-const toastAviso = (msg: string) =>
-  createToast(msg, { type: "warning", position: "top-center", showIcon: true, timeout: 3000 });
-
-const toastSucesso = (msg: string) =>
-  createToast(msg, { type: "success", position: "top-center", showIcon: true, timeout: 3000 });
 
 // Alternar tela
 const togglePanel = () => {

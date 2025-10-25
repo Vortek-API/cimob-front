@@ -19,3 +19,22 @@ export async function getUsuarios(): Promise<Usuario[]>{
   return response.data;
 }
 
+export async function createUsuario(usuario: Usuario): Promise<Usuario>{
+  const api = getApi();
+  const response = await api.post(`/usuario`, usuario);
+  
+  return response.data;
+}
+
+export async function updateUsuario(usuario: Usuario): Promise<Usuario>{
+  const api = getApi();
+  const response = await api.put(`/usuario/${usuario.usuarioId}`, usuario);
+
+  return response.data;
+}
+
+export async function deleteUsuario(usuarioId: number): Promise<void>{
+  const api = getApi();
+  await api.delete(`/usuario/${usuarioId}`);
+}
+

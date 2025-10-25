@@ -204,20 +204,13 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { getUsuarios } from '~/services/usuario-api';
+import { createUsuario, deleteUsuario, getUsuarios, updateUsuario } from '~/services/usuario-api';
 import { CargoUsuario, type Usuario } from '~/types/usuario'
 
 const users = ref<Usuario[]>();
 
 onMounted(async () => {
-   const data = await getUsuarios();
-    users.value = data.map((item: Usuario) => ({ 
-      usuarioId: item.usuarioId,
-      nome: item.nome,
-      cargo: item.cargo,
-      cpf: item.cpf,
-      email: item.email,
-     }))
+   fetchUsers();
 });
 
 const newUser = ref<Omit<Usuario, 'usuarioId'>>({
@@ -240,25 +233,62 @@ const administradores = computed(() =>
 
 const addNewUser = () => {
   if (newUser.value.nome && newUser.value.email && newUser.value.cpf) {
-    const newId = Math.max(...users.value!.map(u => u.usuarioId), 0) + 1
-    users.value!.push({ ...newUser.value, usuarioId: newId })
-    newUser.value = { nome: '', email: '', cpf: '', cargo: CargoUsuario.USUARIO }
-    console.log('Novo usuário adicionado:', users.value)
+    createUsuario(newUser.value as Usuario).then(() => {
+      toastSucesso("Usuário adicionado com sucesso!");
+
+      newUser.value = { nome: '', email: '', cpf: '', cargo: CargoUsuario.USUARIO };
+
+    setTimeout(() => {
+      fetchUsers();
+    }, 300);
+
+    }).catch((error) => {
+      console.error('Erro ao adicionar usuário:', error)
+      toastAviso("Ocorreu um erro ao adicionar o usuário. Por favor, tente novamente.");
+    });
   } else {
-    alert('Por favor, preencha todos os campos para adicionar um novo usuário.')
+    toastAviso("Preencha todos os campos!");
   }
 }
 
 const updateUser = (user: Usuario) => {
-  console.log('Atualizando usuário:', user)
-  alert(`Usuário ${user.nome} atualizado com sucesso!`)
+  if (user.nome && user.email && user.cpf) {
+    updateUsuario(user as Usuario).then(() => {
+      toastSucesso("Usuário atualizado com sucesso!");
+
+    setTimeout(() => {
+      fetchUsers();
+    }, 300);
+
+    }).catch((error) => {
+      console.error('Erro ao atualizar usuário:', error)
+      toastAviso("Ocorreu um erro ao atualizar o usuário. Por favor, tente novamente.");
+    });
+  } else {
+    toastAviso("Preencha todos os campos!");
+  }
 }
 
 const deleteUser = (userId: number) => {
   if (confirm('Tem certeza que deseja excluir este usuário?')) {
     users.value = users.value!.filter(user => user.usuarioId !== userId)
-    console.log('Usuário excluído com ID:', userId)
+    deleteUsuario(userId).then(() => {
+      toastSucesso("Usuário excluído com sucesso!")}).catch((error) => {
+      console.error('Erro ao excluir usuário:', error);
+      toastAviso("Ocorreu um erro ao excluir o usuário. Por favor, tente novamente.");
+    });
   }
+}
+
+async function fetchUsers() {
+  const data = await getUsuarios();
+    users.value = data.map((item: Usuario) => ({ 
+      usuarioId: item.usuarioId,
+      nome: item.nome,
+      cargo: item.cargo,
+      cpf: item.cpf,
+      email: item.email,
+     }))
 }
 </script>
 
