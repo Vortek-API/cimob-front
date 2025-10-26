@@ -4,6 +4,7 @@ import { eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, format } fr
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip } from '@unovis/vue'
 import { useElementSize } from '@vueuse/core'
 import type { Period, Range } from '../../types'
+const { selectedRegion, selectedRadar } = useDashboard()
 
 const cardRef = useTemplateRef<HTMLElement | null>('cardRef')
 
@@ -14,7 +15,7 @@ type DataRecord = { date: Date; amount: number }
 const { width } = useElementSize(cardRef)
 const data = ref<DataRecord[]>([])
 
-watch([() => props.period, () => props.range], () => {
+watch([() => props.period, () => props.range, () => selectedRegion.value, () => selectedRadar.value], () => {
   const dates = ({ daily: eachDayOfInterval, weekly: eachWeekOfInterval, monthly: eachMonthOfInterval } as Record<Period, typeof eachDayOfInterval>)[props.period](props.range)
   const min = 0, max = 100
   data.value = dates.map(date => ({ date, amount: Math.floor(Math.random() * (max - min + 1)) + min }))
@@ -33,7 +34,7 @@ const template = (d: DataRecord) => `${formatDate(d.date)}: ${Math.round(d.amoun
   <UCard ref="cardRef" :ui="{ root: 'overflow-visible', body: '!px-0 !pt-0 !pb-3' }">
     <template #header>
       <div>
-        <p class="text-xs text-muted uppercase mb-1.5">Velocidade (0–100)</p>
+        <p class="text-xs text-muted uppercase mb-1.5">Velocidade média registrada</p>
         <p class="text-3xl text-highlighted font-semibold">{{ avg }}</p>
       </div>
     </template>
