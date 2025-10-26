@@ -67,8 +67,7 @@ const items: NavigationMenuItem[] = [
     icon: 'i-lucide-chart-no-axes-combined',
     defaultOpen: true,
     children: [
-      { label: 'Velocidade Média', to: '/dashboard/velocidade-media' },
-      { label: 'Excesso de Velocidade', to: '/dashboard/excesso-velocidade' },
+      { label: 'Velocidades Registradas', to: '/dashboard/velocidade' },
       { label: 'Tipos de Veículos', to: '/dashboard/tipos-veiculos' },
     ],
   },
@@ -104,10 +103,10 @@ const formattedUpdatedAt = computed(() => {
       border-r border-[#bcd9ff]"
     :ui="{ footer: 'border-t border-[#bcd9ff]' }"
   >
-    <template #default="{ collapsed }">
-      <div class="px-3 pt-4 pb-3 flex items-center">
-        <img src="/images/cimob.png" alt="CIMOB" class="h-24 object-contain" />
-      </div>
+  <template #default="{ collapsed }">
+    <div class="px-3 pt-1 pb-3 flex items-center">
+      <img src="/images/cimob.png" alt="CIMOB" class="h-24 object-contain" />
+    </div>
 
       <UNavigationMenu
         :collapsed="collapsed"
