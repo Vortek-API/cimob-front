@@ -67,7 +67,7 @@ const items: NavigationMenuItem[] = [
     icon: 'i-lucide-chart-no-axes-combined',
     defaultOpen: true,
     children: [
-      { label: 'Velocidade Média', to: '/dashboard/velocidade' },
+      { label: 'Velocidades Registradas', to: '/dashboard/velocidade' },
       { label: 'Tipos de Veículos', to: '/dashboard/tipos-veiculos' },
     ],
   },
