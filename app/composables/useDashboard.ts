@@ -7,6 +7,50 @@ const _useDashboard = () => {
   const router = useRouter()
   const isNotificationsSlideoverOpen = ref(false)
 
+  // Global dashboard filters
+  const regions = ref<Array<{ label: string; value: string }>>([])
+  const radars = ref<Array<{ label: string; value: string }>>([])
+  const selectedRegion = ref<string | null>(null)
+  const selectedRadar = ref<string | null>(null)
+
+  async function loadFilters() {
+    // Fetch options from backend; gracefully fallback on failure
+    const config = useRuntimeConfig()
+    try {
+      const { data: r1 } = await useFetch<Array<{ id: string; name: string }>>('/regions', {
+        baseURL: config.public.API_URL,
+        server: false
+      })
+      if (r1.value?.length) {
+        regions.value = r1.value.map(r => ({ label: r.name, value: r.id }))
+      }
+    } catch {}
+    if (!regions.value.length) {
+      regions.value = [
+        { label: 'Cidade toda', value: 'all' },
+        { label: 'Centro', value: 'centro' },
+        { label: 'Sul', value: 'sul' }
+      ]
+    }
+
+    try {
+      const { data: r2 } = await useFetch<Array<{ id: string; name: string }>>('/radars', {
+        baseURL: config.public.API_URL,
+        server: false
+      })
+      if (r2.value?.length) {
+        radars.value = r2.value.map(r => ({ label: r.name, value: r.id }))
+      }
+    } catch {}
+    if (!radars.value.length) {
+      radars.value = [
+        { label: 'Todos', value: 'all' },
+        { label: 'Radar 01', value: 'radar-01' },
+        { label: 'Radar 02', value: 'radar-02' }
+      ]
+    }
+  }
+
   defineShortcuts({
     'g-h': () => router.push('/'),
     'g-i': () => router.push('/inbox'),
@@ -20,7 +64,13 @@ const _useDashboard = () => {
   })
 
   return {
-    isNotificationsSlideoverOpen
+    isNotificationsSlideoverOpen,
+    // filters
+    regions,
+    radars,
+    selectedRegion,
+    selectedRadar,
+    loadFilters
   }
 }
 

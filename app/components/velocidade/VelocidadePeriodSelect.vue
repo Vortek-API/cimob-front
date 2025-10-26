@@ -9,9 +9,9 @@ defineProps<{ range: Range }>()
   <USelect
     v-model="period"
     :items="[
-      { label: 'Daily', value: 'daily' },
-      { label: 'Weekly', value: 'weekly' },
-      { label: 'Monthly', value: 'monthly' }
+      { label: 'Dia', value: 'daily' },
+      { label: 'Semana', value: 'weekly' },
+      { label: 'Mês', value: 'monthly' }
     ]"
   />
 </template>

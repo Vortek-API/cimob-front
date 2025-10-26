@@ -30,10 +30,6 @@ const items: NavigationMenuItem[][] = [[
         to: '/dashboard/velocidade', 
       },
       { 
-        label: 'Excesso de Velocidade',
-        to: '/dashboard/excesso-velocidade',
-      },
-      { 
         label: 'Tipos de Veículos',
         to: '/dashboard/tipos-veiculos',
       }

@@ -38,11 +38,17 @@ definePageMeta({
           <div class="px-2 py-3">
             <h1 class="text-4xl font-semibold text-[#1b3b82]">Velocidades Registradas</h1>
           </div>
-          <div >
+          <div>
             <UDashboardToolbar>
               <template #left>
-              <VelocidadeDateRangePicker v-model="range" />
-              <VelocidadePeriodSelect v-model="period" :range="range" />
+                <VelocidadeDateRangePicker v-model="range" />
+                <FiltersRegionSelect />
+                <FiltersRadarSelect />
+              </template>
+              <template #right>
+                <div class="flex items-center border-l border-default pl-3 ml-2">
+                  <VelocidadePeriodSelect v-model="period" :range="range" />
+                </div>
               </template>
             </UDashboardToolbar>
           </div>

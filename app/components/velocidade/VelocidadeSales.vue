@@ -2,6 +2,7 @@
 import { h, resolveComponent, ref, watch } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 import { randomInt, randomFrom } from '../../utils'
+const { selectedRegion, selectedRadar } = useDashboard()
 import type { Period, Range, Sale } from '../../types'
 
 const props = defineProps<{ period: Period; range: Range }>()
@@ -11,7 +12,7 @@ const sampleEmails = ['james.anderson@example.com','mia.white@example.com','will
 
 const data = ref<Sale[]>([])
 
-watch([() => props.period, () => props.range], () => {
+watch([() => props.period, () => props.range, () => selectedRegion.value, () => selectedRadar.value], () => {
   const sales: Sale[] = []
   const currentDate = new Date()
   for (let i = 0; i < 5; i++) {
@@ -32,5 +33,5 @@ const columns: TableColumn<Sale>[] = [
 </script>
 
 <template>
-  <UTable :data="data" :columns="columns" class="shrink-0" :ui="{ base: 'table-fixed border-separate border-spacing-0', thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none', tbody: '[&>tr]:last:[&>td]:border-b-0', th: 'first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r', td: 'border-b border-default' }" />
+  <UTable :rows="data" :columns="columns" class="shrink-0" :ui="{ base: 'table-fixed border-separate border-spacing-0', thead: '[&>tr]:bg-elevated/50 [&>tr]:after:content-none', tbody: '[&>tr]:last:[&>td]:border-b-0', th: 'first:rounded-l-lg last:rounded-r-lg border-y border-default first:border-l last:border-r', td: 'border-b border-default' }" />
 </template>

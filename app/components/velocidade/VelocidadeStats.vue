@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Period, Range, Stat } from '../../types'
+const { selectedRegion, selectedRadar } = useDashboard()
 
 const props = defineProps<{ period: Period; range: Range }>()
 
@@ -15,12 +16,16 @@ const baseStats = [
   { title: '% Abaixo da média', icon: 'i-lucide-trending-down', value: 8, info: 'Percentual de ocorrências abaixo do limite legal.', formatter: formatPercentage },
 ]
 
-const stats = computed<Stat[]>(() => baseStats.map((stat) => ({
-  title: stat.title,
-  icon: stat.icon,
-  value: stat.formatter ? stat.formatter(stat.value as number) : stat.value,
-  variation: 0
-})))
+const stats = computed<Stat[]>(() => {
+  // depend on region/radar to recompute
+  const _r = selectedRegion.value; const _rd = selectedRadar.value
+  return baseStats.map((stat) => ({
+    title: stat.title,
+    icon: stat.icon,
+    value: stat.formatter ? stat.formatter(stat.value as number) : stat.value,
+    variation: 0
+  }))
+})
 </script>
 
 <template>
