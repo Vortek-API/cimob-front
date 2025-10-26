@@ -1,4 +1,5 @@
-#!/usr/bin/env node
+// scripts/dev.mjs
+
 import { spawn } from 'node:child_process'
 
 // Parse args (supports: `auth`, `--auth`, `--no-auth`)
@@ -17,10 +18,17 @@ const env = { ...process.env }
 if (bypass === true) env.NUXT_AUTH_BYPASS = '1'
 if (bypass === false) env.NUXT_AUTH_BYPASS = '0'
 
-// Run `nuxt dev` passing through any extra CLI args
-const child = spawn(process.platform === 'win32' ? 'nuxt.cmd' : 'nuxt', ['dev', ...passThrough], {
+// --- CORREÇÃO DO ERRO EINVAL ---
+// A opção `shell: true` é adicionada para garantir que o executável 'nuxt'
+// seja encontrado pelo shell do sistema, resolvendo o problema de execução.
+
+const command = process.platform === 'win32' ? 'nuxt.cmd' : 'nuxt'
+const args = ['dev', ...passThrough]
+
+const child = spawn(command, args, {
   stdio: 'inherit',
-  env
+  env,
+  shell: true // Adicionado para garantir que o executável seja encontrado
 })
 
 child.on('exit', (code) => process.exit(code ?? 0))

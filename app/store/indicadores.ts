@@ -7,6 +7,8 @@ export type Card = {
   indicador: string
   valor: number
   circulo: string
+  mnemonico: string
+  descricao: string
   // to: string
 }
 
@@ -24,8 +26,10 @@ export async function reloadIndicadores(regiaoId?: number, timestamp?: string) {
       indicador: indicador.nome,
       valor: indicador.valor,
       circulo: getCor(indicador.valor),
+      mnemonico: indicador.mnemonico,
+      descricao: indicador.descricao,
       // to: '/database'
-    }))
+    }));
   } catch (err: any) {
     console.error('Erro ao atualizar indicadores:', err)
     indicadoresError.value = err?.message || 'Erro ao carregar indicadores'

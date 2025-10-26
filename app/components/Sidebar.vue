@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 import { computed, onMounted, ref } from 'vue'
@@ -6,10 +5,53 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '~/store/authStore'
 import { ultimaAtualizacao } from '~/store/filtro'
 import { jwtDecode } from 'jwt-decode'
+import { getCargo } from '~/services/usuario-api'
 
+const router = useRouter()
 const route = useRoute()
+const auth = useAuthStore()
 
-const items: NavigationMenuItem[][] = [[
+const email = ref('Usuário')
+const isAdmin = ref(false)
+
+// 🧠 Função que busca o cargo do usuário
+async function fetchUserRole(userEmail: string) {
+  try {
+    const cargo = await getCargo(userEmail)
+    isAdmin.value = cargo.toLowerCase().includes('admin')
+    console.log('Cargo do usuário:', cargo, '| Admin?', isAdmin.value)
+  } catch (error) {
+    console.error('Erro ao buscar cargo do usuário:', error)
+    isAdmin.value = false
+  }
+}
+
+// 🔐 Decodifica o token e pega o email
+onMounted(() => {
+  const token = localStorage.getItem('token')
+  if (token) {
+    try {
+      const decoded = jwtDecode<{ sub?: string; email?: string; nome?: string }>(token)
+      const userEmail = decoded.email || decoded.sub || decoded.nome || 'Usuário'
+      email.value = userEmail
+      if (userEmail !== 'Usuário') {
+        fetchUserRole(userEmail)
+      }
+    } catch (err) {
+      console.error('Erro ao decodificar token:', err)
+      email.value = 'Usuário'
+    }
+  }
+})
+
+// 🚪 Logout
+function logout() {
+  auth.logout()
+  router.push('/login')
+}
+
+// 🧭 Menu de navegação (sem array duplo, tipagem corrigida)
+const items: NavigationMenuItem[] = [
   {
     label: 'Home',
     icon: 'i-lucide-house',
@@ -25,40 +67,24 @@ const items: NavigationMenuItem[][] = [[
     icon: 'i-lucide-chart-no-axes-combined',
     defaultOpen: true,
     children: [
-      { 
-        label: 'Velocidade',
-        to: '/dashboard/velocidade', 
-      },
-      { 
-        label: 'Tipos de Veículos',
-        to: '/dashboard/tipos-veiculos',
-      }
-    ]
-  }
-]]
+      { label: 'Velocidade Média', to: '/dashboard/velocidade' },
+      { label: 'Tipos de Veículos', to: '/dashboard/tipos-veiculos' },
+    ],
+  },
+  // Só aparece se o usuário for admin
+  {
+    label: 'Administrador',
+    icon: 'i-lucide-shield',
+    defaultOpen: false,
+    children: [
+      { label: 'Logs', to: '/admin/logs' },
+      { label: 'Acessos', to: '/admin/acessos' },
+    ],
+    show: computed(() => isAdmin.value),
+  },
+]
 
-const router = useRouter()
-const auth = useAuthStore()
-const email = ref('Usuário')
-
-onMounted(() => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    try {
-      const decoded = jwtDecode<{ sub?: string; email?: string; nome?: string }>(token)
-      email.value = decoded.email || decoded.sub || decoded.nome || 'Usuário'
-    } catch (err) {
-      console.error('Erro ao decodificar token:', err)
-      email.value = 'Usuário'
-    }
-  }
-})
-
-function logout () {
-  auth.logout()
-  router.push('/login')
-}
-
+// 🕒 Última atualização formatada
 const formattedUpdatedAt = computed(() => {
   if (!ultimaAtualizacao?.value) return 'Nunca atualizado'
   const d = new Date(ultimaAtualizacao.value)
@@ -84,20 +110,11 @@ const formattedUpdatedAt = computed(() => {
 
       <UNavigationMenu
         :collapsed="collapsed"
-        :items="items[0]"
+        :items="items.filter(i => i.show === undefined || i.show)"
         orientation="vertical"
-        :ui="{ icon: 'text-current' }"
       />
 
-      <UNavigationMenu
-        :collapsed="collapsed"
-        :items="items[1]"
-        orientation="vertical"
-        :ui="{ icon: 'text-current' }"
-        class="mt-auto"
-      />
-
-      <div v-if="!collapsed" class="px-2 pt-2">
+      <div v-if="!collapsed" class="px-2 pt-2 mt-auto">
         <p class="text-xs text-muted">Última atualização: {{ formattedUpdatedAt }}</p>
       </div>
     </template>
@@ -105,15 +122,28 @@ const formattedUpdatedAt = computed(() => {
     <template #footer="{ collapsed }">
       <div class="w-full px-2 py-2">
         <div class="flex items-center gap-3" :class="collapsed ? 'justify-center' : ''">
-          <UAvatar :alt="email.charAt(0).toUpperCase()" size="md" :ui="{ rounded: 'rounded-md' }" />
+          <UAvatar :alt="email.charAt(0).toUpperCase()" size="md" class="rounded-md" />
           <div v-if="!collapsed" class="min-w-0 flex-1">
             <p class="text-sm font-medium truncate">{{ email }}</p>
-            <UButton size="xs" color="neutral" variant="ghost" icon="i-lucide-log-out" class="mt-1 px-1"
-              @click="logout">
+            <UButton
+              size="xs"
+              color="neutral"
+              variant="ghost"
+              icon="i-lucide-log-out"
+              class="mt-1 px-1"
+              @click="logout"
+            >
               Sair
             </UButton>
           </div>
-          <UButton v-else color="neutral" variant="ghost" icon="i-lucide-log-out" aria-label="Sair" @click="logout" />
+          <UButton
+            v-else
+            color="neutral"
+            variant="ghost"
+            icon="i-lucide-log-out"
+            aria-label="Sair"
+            @click="logout"
+          />
         </div>
       </div>
     </template>
@@ -121,9 +151,13 @@ const formattedUpdatedAt = computed(() => {
 </template>
 
 <style scoped>
-.cimo-sidebar :deep(.iconify) { color: currentColor !important; }
+.cimo-sidebar :deep(.iconify) {
+  color: currentColor !important;
+}
 
-.cimo-sidebar :deep(nav a) { color: #1b3b82 !important; }
+.cimo-sidebar :deep(nav a) {
+  color: #1b3b82 !important;
+}
 
 .cimo-sidebar :deep(nav a:hover),
 .cimo-sidebar :deep(nav a[aria-current='page']) {
