@@ -26,8 +26,8 @@ const items: NavigationMenuItem[][] = [[
     defaultOpen: true,
     children: [
       { 
-        label: 'Velocidade Média',
-        to: '/dashboard/velocidade-media', 
+        label: 'Velocidade',
+        to: '/dashboard/velocidade', 
       },
       { 
         label: 'Excesso de Velocidade',
@@ -82,7 +82,7 @@ const formattedUpdatedAt = computed(() => {
     :ui="{ footer: 'border-t border-[#bcd9ff]' }"
   >
   <template #default="{ collapsed }">
-    <div class="px-3 pt-4 pb-3 flex items-center">
+    <div class="px-3 pt-1 pb-3 flex items-center">
       <img src="/images/cimob.png" alt="CIMOB" class="h-24 object-contain" />
     </div>
 
