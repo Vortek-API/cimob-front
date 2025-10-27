@@ -1,4 +1,5 @@
 import type { Indicador } from '~/types/indicador'
+import type { IndiceCritico } from '~/types/indice-critico'
 import { getApi } from "~/config/axios-config";
 import { reloadIndicadores } from '~/store/indicadores';
 import { regiaoSelecionada } from '~/store/filtro';
@@ -26,7 +27,7 @@ export async function fetchIndicadores(regiaoId?: number, timestamp?: string): P
   return response.data;
 }
 
-export async function fetchIndicesCriticos(regiaoId?: number, timestamp?: string): Promise<Indicador[]> {
+export async function fetchIndicesCriticos(regiaoId?: number, timestamp?: string): Promise<IndiceCritico[]> {
   let url = `/indicadores/indices-criticos`;
   
   const params = new URLSearchParams();
@@ -70,4 +71,3 @@ export async function fetchAtualizaSelecionados(indicadoresId: number[]): Promis
     }, 500);
   }
 }
-

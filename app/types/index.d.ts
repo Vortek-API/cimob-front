@@ -1,7 +1,6 @@
 import type { AvatarProps } from '@nuxt/ui'
 
 export type UserStatus = 'subscribed' | 'unsubscribed' | 'bounced'
-export type SaleStatus = 'paid' | 'failed' | 'refunded'
 
 export interface User {
   id: number
@@ -35,15 +34,6 @@ export interface Stat {
   variation: number
   formatter?: (value: number) => string
 }
-
-export interface Sale {
-  id: string
-  date: string
-  status: SaleStatus
-  email: string
-  amount: number
-}
-
 export interface Notification {
   id: number
   unread?: boolean
