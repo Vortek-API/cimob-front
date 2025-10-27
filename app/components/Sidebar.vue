@@ -68,7 +68,7 @@ const items: NavigationMenuItem[] = [
     defaultOpen: true,
     children: [
       { label: 'Velocidades Registradas', to: '/dashboard/velocidade' },
-      { label: 'Tipos de Veículos', to: '/dashboard/tipos-veiculos' },
+      { label: 'Tipos de Veículos', to: '/dashboard/veiculos' },
     ],
   },
   // Só aparece se o usuário for admin
