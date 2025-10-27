@@ -1,9 +1,14 @@
 export interface Usuario {
   usuarioId: number;
+  nome: string;
+  senha?: string;
+  cargo: CargoUsuario;
   cpf: string;
-  nome: number;
-  sobrenome: string;
-  username: string;
   email: string;
-  cargo: string;
+}
+
+export enum CargoUsuario {
+  ADMIN = 'ADMIN',
+  USUARIO = 'USUARIO',
+  INDEFINIDO = 'INDEFINIDO',
 }
