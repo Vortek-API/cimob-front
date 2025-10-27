@@ -1,12 +1,15 @@
 <template>
   <UApp>
     <NuxtLayout>
+      <Notificacao />
       <NuxtPage />
     </NuxtLayout>
   </UApp>
 </template>
-
+	
 <script setup lang="ts">
+import Notificacao from "~/components/Notificacao.vue";
+
 useHead({
   link: [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
@@ -19,5 +22,5 @@ useHead({
   bodyAttrs: {
     class: 'font-sans antialiased bg-gray-100 overflow-hidden'
   }
-})
+} )
 </script>

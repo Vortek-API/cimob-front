@@ -127,9 +127,14 @@ import { ref } from "vue";
 import imgCimo from "/images/cimob.png";
 
 import { autenticarUsuario, cadastrar } from "~/services/autenticador-api";
+import { getUsuarioByEmail } from "~/services/usuario-api"; // ALTERAÇÃO: Importação para buscar o usuário
+import { useAuthStore } from "~/store/authStore"; // ALTERAÇÃO: Importação do Auth Store
 import type { Usuario } from "~/types/usuario";
+import { useRouter } from 'vue-router';
 
-// Importações do código de referência para logo (ajustar caminhos conforme sua estrutura de projeto)
+import { alertSucesso, alertAviso } from "~/composables/useAlerts";
+
+// Importações do código de referência para logo (ajustar caminhos conforme sua estrutura de projeto )
 // import svgPathsImport from \'~/assets/svgPaths\'; // Se você estiver usando SVGs inline como no exemplo
 
 // Estado do painel para alternar entre as telas
@@ -161,26 +166,38 @@ const toggleSenhaUser = () => (mostrarSenhaUser.value = !mostrarSenhaUser.value)
 // Mostrar/ocultar senha para Administrador
 const toggleSenhaAdmin = () => (mostrarSenhaAdmin.value = !mostrarSenhaAdmin.value);
 
-// Login Administrador
+const authStore = useAuthStore();
+const router = useRouter();
+
 const loginAdmin = async () => {
   if (!emailAdminCimob.value || !senhaAdminCimob.value) {
-    toastAviso("Preencha todos os campos!");
+    alertAviso("Preencha todos os campos!");
     return;
   }
 
   loading.value = true;
   try {
-    const data = await autenticarUsuario({
+    // 1. Autenticar e obter o token
+    const authData = await autenticarUsuario({
       email: emailAdminCimob.value.trim(),
       senha: senhaAdminCimob.value.trim(),
     });
 
-    localStorage.setItem("token", data.accessToken);
-    console.log("Login Admin:", emailAdminCimob.value, senhaAdminCimob.value);
-    toastSucesso("Login realizado com sucesso!");
-    window.location.href = "/home"; // Redirecionar após login
+    authStore.setToken(authData.accessToken);
+    authStore.setRefreshToken(authData.refreshToken);
+    
+    // 2. Buscar dados completos do usuário (incluindo o cargo)
+    const usuarioData = await getUsuarioByEmail(emailAdminCimob.value.trim());
+    authStore.setUsuario(usuarioData);
+
+    console.log("authStore.usuario: ", authStore.usuario);
+    console.log("usuarioData: ", usuarioData);
+
+    alertSucesso("Login realizado com sucesso!");
+    router.push('/home');
   } catch (error: any) {
-    toastAviso("Erro ao autenticar, verifique suas credenciais.");
+    console.error("Erro no login:", error);
+    alertAviso("Erro ao autenticar, verifique suas credenciais.");
   } finally {
     loading.value = false;
   }
@@ -189,7 +206,7 @@ const loginAdmin = async () => {
 // Cadastro Usuário
 const cadastrarUserCimob = async () => {
   if (!nomeUserCimob.value || !emailUserCimob.value || !senhaUserCimob.value || !cpfUserCimob.value) {
-    toastAviso("Preencha todos os campos!");
+    alertAviso("Preencha todos os campos!");
     return;
   }
 
@@ -203,9 +220,9 @@ const cadastrarUserCimob = async () => {
 
     cadastrar(usuario);
     
-    toastSucesso("Usuário cadastrado com sucesso!");
+    alertSucesso("Usuário cadastrado com sucesso!");
   } catch (error: any) {
-    toastAviso("Erro ao cadastrar usuário.");
+    alertAviso("Erro ao cadastrar usuário.");
   } finally {
     loading.value = false;
   }
@@ -214,8 +231,8 @@ const cadastrarUserCimob = async () => {
 
 <style scoped>
 /* Importação de fontes e ícones */
-@import url('https://use.fontawesome.com/releases/v5.8.2/css/all.css');
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+@import url('https://use.fontawesome.com/releases/v5.8.2/css/all.css' );
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap' );
 
 * {
   margin: 0;

@@ -234,7 +234,7 @@ const administradores = computed(() =>
 const addNewUser = () => {
   if (newUser.value.nome && newUser.value.email && newUser.value.cpf) {
     createUsuario(newUser.value as Usuario).then(() => {
-      toastSucesso("Usuário adicionado com sucesso!");
+      alertSucesso("Usuário adicionado com sucesso!");
 
       newUser.value = { nome: '', email: '', cpf: '', cargo: CargoUsuario.USUARIO };
 
@@ -244,17 +244,17 @@ const addNewUser = () => {
 
     }).catch((error) => {
       console.error('Erro ao adicionar usuário:', error)
-      toastAviso("Ocorreu um erro ao adicionar o usuário. Por favor, tente novamente.");
+      alertAviso("Ocorreu um erro ao adicionar o usuário. Por favor, tente novamente.");
     });
   } else {
-    toastAviso("Preencha todos os campos!");
+    alertAviso("Preencha todos os campos!");
   }
 }
 
 const updateUser = (user: Usuario) => {
   if (user.nome && user.email && user.cpf) {
     updateUsuario(user as Usuario).then(() => {
-      toastSucesso("Usuário atualizado com sucesso!");
+      alertSucesso("Usuário atualizado com sucesso!");
 
     setTimeout(() => {
       fetchUsers();
@@ -262,23 +262,31 @@ const updateUser = (user: Usuario) => {
 
     }).catch((error) => {
       console.error('Erro ao atualizar usuário:', error)
-      toastAviso("Ocorreu um erro ao atualizar o usuário. Por favor, tente novamente.");
+      alertAviso("Ocorreu um erro ao atualizar o usuário. Por favor, tente novamente.");
     });
   } else {
-    toastAviso("Preencha todos os campos!");
+    alertAviso("Preencha todos os campos!");
   }
 }
 
 const deleteUser = (userId: number) => {
-  if (confirm('Tem certeza que deseja excluir este usuário?')) {
-    users.value = users.value!.filter(user => user.usuarioId !== userId)
-    deleteUsuario(userId).then(() => {
-      toastSucesso("Usuário excluído com sucesso!")}).catch((error) => {
+  alertConfirmacao('Tem certeza que deseja excluir este usuário?', async () => {
+    try {
+      // Remove o usuário localmente
+      users.value = users.value!.filter(user => user.usuarioId !== userId);
+
+      // Chama a API
+      await deleteUsuario(userId);
+
+      // Mostra sucesso
+      alertSucesso("Usuário excluído com sucesso!");
+    } catch (error) {
       console.error('Erro ao excluir usuário:', error);
-      toastAviso("Ocorreu um erro ao excluir o usuário. Por favor, tente novamente.");
-    });
-  }
-}
+      alertAviso("Ocorreu um erro ao excluir o usuário. Por favor, tente novamente.");
+    }
+  });
+};
+
 
 async function fetchUsers() {
   const data = await getUsuarios();
