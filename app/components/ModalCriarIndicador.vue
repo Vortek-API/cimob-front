@@ -5,8 +5,8 @@
   >
     <div @click.stop class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
       <h2 class="text-2xl font-bold text-blue-900 mb-2">Selecionar Indicadores</h2>
-      <p class="text-gray-600 mb-2">Clique em até 3 indicadores para visualizar seus detalhes.</p>
-      <p class="text-sm text-blue-600 font-semibold mb-6">Selecionados: {{ indicadoresSelecionados.length }}/3</p>
+      <p class="text-gray-600 mb-2">Clique em até 6 indicadores para visualizar seus detalhes.</p>
+      <p class="text-sm text-blue-600 font-semibold mb-6">Selecionados: {{ indicadoresSelecionados.length }}/{{ LIMITE_INDICADORES }}</p>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="space-y-4">
@@ -14,13 +14,13 @@
             v-for="indicator in indicators"
             :key="indicator.id"
             @click="toggleSelecao(indicator)"
-            :class="[
-              'border-2 rounded-xl p-4 cursor-pointer transition-all duration-300',
+            :class="[ 
+              'border-2 rounded-xl p-4 cursor-pointer transition-all duration-300', 
               estaSelecionado(indicator) 
                 ? 'border-blue-500 bg-blue-50 shadow-lg' 
                 : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
             ]"
-            :style="{ opacity: !estaSelecionado(indicator) && indicadoresSelecionados.length >= 3 ? 0.5 : 1, pointerEvents: !estaSelecionado(indicator) && indicadoresSelecionados.length >= 3 ? 'none' : 'auto' }"
+            :style="{ opacity: !estaSelecionado(indicator) && indicadoresSelecionados.length >= LIMITE_INDICADORES ? 0.5 : 1, pointerEvents: !estaSelecionado(indicator) && indicadoresSelecionados.length >= LIMITE_INDICADORES ? 'none' : 'auto' }"
           >
             <div class="flex items-start gap-3">
               <div class="flex-shrink-0 mt-1">
@@ -93,7 +93,7 @@
           </div>
 
           <div v-else class="flex items-center justify-center py-8">
-            <p class="text-gray-500 text-center">Selecione até 3 indicadores para visualizar os detalhes.</p>
+            <p class="text-gray-500 text-center">Selecione até {{ LIMITE_INDICADORES }} indicadores para visualizar os detalhes.</p>
           </div>
 
           <div class="mt-6 flex gap-3">
@@ -113,7 +113,7 @@
                   : 'bg-blue-600 hover:bg-blue-800 text-white'
               ]"
             >
-              OK ({{ indicadoresSelecionados.length }}/3)
+              OK ({{ indicadoresSelecionados.length }}/{{ LIMITE_INDICADORES }})
             </button>
           </div>
         </div>
@@ -128,6 +128,8 @@ import { fetchAtualizaSelecionados, fetchIndicadoresSemCalculo } from '~/service
 import type { Indicador } from '~/types/indicador';
 
 const emit = defineEmits(['fechar', 'salvar'])
+
+const LIMITE_INDICADORES = 6;
 
 interface Indicator {
   id: number;
@@ -153,19 +155,19 @@ onMounted(async () => {
       descricao: item.descricao
       // formula: item.formula,
       // unidade: item.unidade
-     }))
+    }))
 
      // 1. Pré-selecionar indicadores onde 'oculto' é false
-     const preSelecionados = indicators.value.filter(ind => ind.oculto === false);
-     indicadoresSelecionados.value = preSelecionados.slice(0, 3); // Limita a 3, se houver mais
+    const preSelecionados = indicators.value.filter(ind => ind.oculto === false);
+    indicadoresSelecionados.value = preSelecionados.slice(0, LIMITE_INDICADORES);
 
      // 2. Abrir o detalhe do primeiro indicador selecionado, se houver
-     if (indicadoresSelecionados.value.length > 0) {
-       detalheAberto.value = indicadoresSelecionados.value[0]!.id;
-     }
+    if (indicadoresSelecionados.value.length > 0) {
+      detalheAberto.value = indicadoresSelecionados.value[0]!.id;
+    }
 
-     console.log('Indicadores carregados:', indicators.value);
-     console.log('Indicadores pré-selecionados:', indicadoresSelecionados.value);
+    console.log('Indicadores carregados:', indicators.value);
+    console.log('Indicadores pré-selecionados:', indicadoresSelecionados.value);
   } catch (error) {
     console.error('Erro ao carregar indicadores:', error)
   }
@@ -183,7 +185,7 @@ function toggleSelecao(indicator: Indicator) {
   if (index !== -1) {
     removerSelecao(indicator)
   } else {
-    if (indicadoresSelecionados.value.length < 3) {
+    if (indicadoresSelecionados.value.length < LIMITE_INDICADORES) {
       indicadoresSelecionados.value.push(indicator)
       detalheAberto.value = indicator.id
     }
