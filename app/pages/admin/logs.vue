@@ -7,8 +7,8 @@
       <div class="p-6 md:p-8 w-full">
         <!-- HEADER COM TÍTULO -->
         <div class="mb-8">
-          <h1 class="text-4xl font-bold text-gray-900 mb-2">Logs de Atividades do Sistema</h1>
-          <p class="text-gray-600">Monitore e acompanhe todas as atividades do sistema</p>
+          <h1 class="text-4xl font-bold text-gray-900 mb-2">Logs de Atividades do Indicador</h1>
+          <p class="text-gray-600">Monitore e acompanhe todas as atividades do Indicador</p>
         </div>
 
         <!-- CARD DE ESTATÍSTICAS -->
@@ -35,8 +35,8 @@
                 </svg>
               </div>
               <div>
-                <p class="text-gray-600 text-sm font-medium">Logs do Sistema</p>
-                <p class="text-3xl font-bold text-gray-900">{{ logsDoSistema }}</p>
+                <p class="text-gray-600 text-sm font-medium">Logs do Indicador</p>
+                <p class="text-3xl font-bold text-gray-900">{{ logsDoIndicador }}</p>
               </div>
             </div>
           </div>
@@ -63,8 +63,8 @@
                 </svg>
               </div>
               <div>
-                <p class="text-gray-600 text-sm font-medium">Logs Financeiros</p>
-                <p class="text-3xl font-bold text-gray-900">{{ logsFinanceiros }}</p>
+                <p class="text-gray-600 text-sm font-medium">Logs Eventos</p>
+                <p class="text-3xl font-bold text-gray-900">{{ logsEventos }}</p>
               </div>
             </div>
           </div>
@@ -91,8 +91,8 @@
               >
                 <option value="">Todos os Indicadores</option>
                 <option value="usuario">Usuário</option>
-                <option value="sistema">Sistema</option>
-                <option value="financeiro">Financeiro</option>
+                <option value="Indicador">Indicador</option>
+                <option value="Eventos">Eventos</option>
               </select>
             </div>
 
@@ -132,7 +132,7 @@
               <thead>
                 <tr class="bg-gray-50 border-b border-gray-200">
                   <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Usuário</th>
-                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Indicador</th>
+                  <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Tipo</th>
                   <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Descrição</th>
                   <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Data</th>
                   <th class="px-6 py-4 text-left text-sm font-semibold text-gray-900">Ação</th>
@@ -185,7 +185,7 @@ import { ref, computed } from 'vue'
 interface Log {
   id: number
   usuario: string
-  indicador: 'Usuário' | 'Sistema' | 'Financeiro'
+  indicador: 'Usuário' | 'Indicador' | 'Eventos'
   descricao: string
   data: Date
   acao: string
@@ -193,25 +193,25 @@ interface Log {
 
 const logs = ref<Log[]>([
   { id: 1, usuario: 'joao.silva', indicador: 'Usuário', descricao: 'Tentativa de login falha.', data: new Date('2025-10-23T10:00:00'), acao: 'Login' },
-  { id: 2, usuario: 'maria.oliveria', indicador: 'Sistema', descricao: 'Backup diário concluído com sucesso.', data: new Date('2025-10-23T03:00:00'), acao: 'Backup' },
-  { id: 3, usuario: 'pedro.santos', indicador: 'Financeiro', descricao: 'Fatura #2025001 gerada.', data: new Date('2025-10-22T15:30:00'), acao: 'Geração de Fatura' },
+  { id: 2, usuario: 'maria.oliveria', indicador: 'Indicador', descricao: 'Backup diário concluído com sucesso.', data: new Date('2025-10-23T03:00:00'), acao: 'Backup' },
+  { id: 3, usuario: 'pedro.santos', indicador: 'Eventos', descricao: 'Fatura #2025001 gerada.', data: new Date('2025-10-22T15:30:00'), acao: 'Geração de Fatura' },
   { id: 4, usuario: 'joao.silva', indicador: 'Usuário', descricao: 'Alteração de permissão do usuário X.', data: new Date('2025-10-22T10:00:00'), acao: 'Alteração' },
-  { id: 5, usuario: 'sistema', indicador: 'Sistema', descricao: 'Atualização de biblioteca de segurança.', data: new Date('2025-10-21T02:00:00'), acao: 'Atualização' },
+  { id: 5, usuario: 'Indicador', indicador: 'Indicador', descricao: 'Atualização de biblioteca de segurança.', data: new Date('2025-10-21T02:00:00'), acao: 'Atualização' },
 ])
 
 // Propriedades computadas para estatísticas
 const totalLogs = computed(() => logs.value.length)
 
-const logsDoSistema = computed(() => 
-  logs.value.filter(l => l.indicador === 'Sistema').length
+const logsDoIndicador = computed(() => 
+  logs.value.filter(l => l.indicador === 'Indicador').length
 )
 
 const logsDeUsuario = computed(() => 
   logs.value.filter(l => l.indicador === 'Usuário').length
 )
 
-const logsFinanceiros = computed(() => 
-  logs.value.filter(l => l.indicador === 'Financeiro').length
+const logsEventos = computed(() => 
+  logs.value.filter(l => l.indicador === 'Eventos').length
 )
 
 const formatDate = (date: Date): string => {
@@ -222,9 +222,9 @@ const getIndicadorColor = (indicador: string): string => {
   switch (indicador.toLowerCase()) {
     case 'usuário':
       return 'bg-cyan-600'
-    case 'sistema':
+    case 'indicador':
       return 'bg-green-600'
-    case 'financeiro':
+    case 'eventos':
       return 'bg-amber-600'
     default:
       return 'bg-gray-600'

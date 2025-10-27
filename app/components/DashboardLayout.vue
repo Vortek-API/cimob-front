@@ -19,7 +19,7 @@
 
           <!-- Coluna 2: Controles e Indicadores (1fr) -->
           <div class="w-full max-w-[860px]">
-            <!-- Controles (MenuRegiao e botão Criar Indicador) -->
+            <!-- Controles (MenuRegiao e botão Selecionar Indicador) -->
             <div class="flex items-center justify-between mb-6 md:mb-8">
               <MenuRegiao />
               <button
@@ -27,7 +27,7 @@
                 @click="abrirModal"
                 class="ml-auto bg-blue-600 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-transform transform hover:scale-105"
               >
-                Criar Indicador
+                Selecionar Indicador
               </button>
               <div class="flex items-center gap-4 mb-4"></div>
             </div>
