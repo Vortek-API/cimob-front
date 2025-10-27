@@ -24,6 +24,7 @@ const calendarRange = computed({
     end: selected.value.end ? toCalendarDate(selected.value.end) : undefined
   }),
   set: (newValue: { start: CalendarDate | undefined, end: CalendarDate | undefined }) => {
+    // Só aplica quando o usuário selecionou um intervalo completo
     if (newValue.start && newValue.end) {
       selected.value = {
         start: newValue.start.toDate(getLocalTimeZone()),

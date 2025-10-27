@@ -14,22 +14,36 @@ const _useDashboard = () => {
   const selectedRadar = ref<string | null>(null)
 
   async function loadFilters() {
-    // Fetch options from backend; gracefully fallback on failure
     const config = useRuntimeConfig()
+    // Se não há API_URL, use listas locais e não tente buscar
+    if (!config.public.API_URL) {
+      regions.value = regions.value.length ? regions.value : [
+        { label: 'Cidade toda', value: 'all' },
+        { label: 'Centro', value: '1' },
+        { label: 'Sul', value: '2' }
+      ]
+      radars.value = radars.value.length ? radars.value : [
+        { label: 'Todos', value: 'all' },
+        { label: 'Radar 01', value: 'radar-01' },
+        { label: 'Radar 02', value: 'radar-02' }
+      ]
+      return
+    }
+    // Fetch remoto quando configurado
     try {
       const { data: r1 } = await useFetch<Array<{ id: string; name: string }>>('/regions', {
         baseURL: config.public.API_URL,
         server: false
       })
       if (r1.value?.length) {
-        regions.value = r1.value.map(r => ({ label: r.name, value: r.id }))
+        regions.value = r1.value.map(r => ({ label: r.name, value: String(r.id) }))
       }
     } catch {}
     if (!regions.value.length) {
       regions.value = [
         { label: 'Cidade toda', value: 'all' },
-        { label: 'Centro', value: 'centro' },
-        { label: 'Sul', value: 'sul' }
+        { label: 'Centro', value: '1' },
+        { label: 'Sul', value: '2' }
       ]
     }
 
@@ -39,7 +53,7 @@ const _useDashboard = () => {
         server: false
       })
       if (r2.value?.length) {
-        radars.value = r2.value.map(r => ({ label: r.name, value: r.id }))
+        radars.value = r2.value.map(r => ({ label: r.name, value: String(r.id) }))
       }
     } catch {}
     if (!radars.value.length) {

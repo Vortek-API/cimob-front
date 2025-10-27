@@ -3,5 +3,7 @@ export function randomInt(min: number, max: number): number {
 }
 
 export function randomFrom<T>(array: T[]): T {
-  return array[Math.floor(Math.random() * array.length)]
+  if (array.length === 0) throw new Error('randomFrom requires a non-empty array')
+  const i = Math.floor(Math.random() * array.length)
+  return array[i] as T
 }
