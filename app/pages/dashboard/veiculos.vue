@@ -92,7 +92,7 @@ const filtered = computed(() => {
       <UDashboardPanel id="veiculos" class="w-full">
         <template #body>
           <div class="px-2 py-3">
-            <h1 class="text-4xl font-semibold text-[#1b3b82]">Veículos</h1>
+            <h1 class="text-4xl font-semibold text-[#1b3b82]">Tipos de Veículos</h1>
           </div>
           <div>
             <UDashboardToolbar>

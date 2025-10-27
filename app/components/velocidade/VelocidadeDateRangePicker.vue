@@ -24,9 +24,11 @@ const calendarRange = computed({
     end: selected.value.end ? toCalendarDate(selected.value.end) : undefined
   }),
   set: (newValue: { start: CalendarDate | undefined, end: CalendarDate | undefined }) => {
-    selected.value = {
-      start: newValue.start ? newValue.start.toDate(getLocalTimeZone()) : new Date(),
-      end: newValue.end ? newValue.end.toDate(getLocalTimeZone()) : new Date()
+    if (newValue.start && newValue.end) {
+      selected.value = {
+        start: newValue.start.toDate(getLocalTimeZone()),
+        end: newValue.end.toDate(getLocalTimeZone())
+      }
     }
   }
 })
@@ -88,4 +90,3 @@ const selectRange = (range: { days?: number, months?: number, years?: number }) 
     </template>
   </UPopover>
 </template>
-
