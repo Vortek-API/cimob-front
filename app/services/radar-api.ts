@@ -26,3 +26,21 @@ export async function fetchIndicadoresPorRadar(radarId: string, timestamp: strin
   return response.data;
 }
 
+export async function fetchIndicadoresComRadar(timestamp: string = getCurrentWindowTimestampString()): Promise<IndicadorRadar[]> {
+
+  const params = new URLSearchParams();
+  let url = `/radares/indicadores`;
+  
+  if (timestamp) {
+    params.append('timestamp', timestamp);
+  }
+  
+  if (params.toString()) {
+    url += `?${params.toString()}`;
+  }
+
+  const api = getApi();
+  const response = await api.get(url);
+  return response.data;
+}
+

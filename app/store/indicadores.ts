@@ -1,6 +1,8 @@
 import { ref } from 'vue'
 import { fetchIndicadores } from '~/services/indicador-api'
+import { fetchIndicadoresComRadar } from '~/services/radar-api'
 import type { Indicador } from '~/types/indicador'
+import type { IndicadorRadar } from '~/types/radar'
 
 export type Card = {
   id: number
@@ -13,6 +15,7 @@ export type Card = {
 }
 
 export const cards = ref<Card[]>([])
+export const indicadoresRadar = ref<IndicadorRadar[]>([])
 export const isLoadingIndicadores = ref<boolean>(false)
 export const indicadoresError = ref<string | null>(null)
 
@@ -30,6 +33,21 @@ export async function reloadIndicadores(regiaoId?: number, timestamp?: string) {
       descricao: indicador.descricao,
       // to: '/database'
     }));
+  } catch (err: any) {
+    console.error('Erro ao atualizar indicadores:', err)
+    indicadoresError.value = err?.message || 'Erro ao carregar indicadores'
+    cards.value = []
+  } finally {
+    isLoadingIndicadores.value = false
+  }
+}
+
+export async function reloadIndicadoresRadar(timestamp?: string) {
+  try {
+    isLoadingIndicadores.value = true
+    indicadoresError.value = null
+    const indicadores: IndicadorRadar[] = await fetchIndicadoresComRadar(timestamp);
+    indicadoresRadar.value = indicadores;
   } catch (err: any) {
     console.error('Erro ao atualizar indicadores:', err)
     indicadoresError.value = err?.message || 'Erro ao carregar indicadores'

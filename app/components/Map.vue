@@ -107,13 +107,17 @@ import type { FeatureCollection, Point, GeoJsonProperties } from 'geojson'
 import { shallowRef, onMounted, onUnmounted, markRaw, ref, watch } from 'vue'
 import { getCurrentWindowTimestampString } from '~/store/timestamp'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
-import { fetchRadars } from '~/services/radar-api'
+import { fetchIndicadoresComRadar, fetchRadars } from '~/services/radar-api'
 import type { Radar } from '~/types/radar'
 import { fetchPontos } from '~/services/ponto-api'
 import type { Ponto } from '~/types/ponto'
 import { fetchIndicadoresPorRadar } from '~/services/radar-api'
 import type { IndicadorRadar } from '~/types/radar'
 import { Popup } from '@maptiler/sdk'
+import { indicadoresRadar } from '~/store/indicadores'
+import { useIndicadoresRadarAutoRefresh } from '~/composables/useIndicadoresAutoRefresh'
+
+useIndicadoresRadarAutoRefresh()
 
 const mapContainer = shallowRef<HTMLElement | null>(null)
 const map = shallowRef<Map | null>(null)
@@ -385,8 +389,8 @@ async function handleRadarClick(e: any) {
     .addTo(map.value!)
 
   try {
-    const timestamp = getCurrentWindowTimestampString()
-    const indicadores = await fetchIndicadoresPorRadar(radarId, timestamp)
+    const indicadores = indicadoresRadar.value.filter(ind => ind.radarId === radarId)
+    console.log(indicadores);
     radarIndicators.value = indicadores
     isFetchingIndicators.value = false
     
@@ -408,55 +412,48 @@ async function handleRadarClick(e: any) {
 function updatePopupContent(coordinates: [number, number], radarId: string, indicadores: IndicadorRadar[]) {
   if (!map.value) return
 
-  // Remover pop-up anterior
   activePopup.value?.remove()
 
-  const popupContent = document.createElement('div')
-  popupContent.className = 'p-2'
-  
-  let htmlContent = `<h4 class="text-base font-bold text-gray-900 mb-2">Radar ID: ${radarId}</h4>`
-
-  if (indicadores.length === 0) {
-    htmlContent += '<p class="text-sm text-gray-600">Nenhum indicador encontrado para este radar.</p>'
-  } else {
-    htmlContent += '<ul class="space-y-1">'
-    indicadores.forEach(ind => {
-      htmlContent += `
-        <li class="flex justify-between items-center text-sm">
-          <span class="font-medium text-gray-700">${ind.nome}:</span>
-          <span class="font-semibold text-blue-600">${ind.valor}</span>
-        </li>
-      `
-    })
-    htmlContent += '</ul>'
-  }
-
-  popupContent.innerHTML = htmlContent
-
-  activePopup.value = new Popup({
-    closeButton: true,
-    closeOnClick: false,
-    offset: 25,
-    maxWidth: '300px'
-  })
-    .setLngLat(coordinates)
-    .setDOMContent(popupContent)
-    .addTo(map.value!)
+  setTimeout(() => {
+    const popupContent = document.createElement('div')
+    popupContent.className = 'p-2'
     
-  // Adicionar listener para fechar o pop-up ao clicar no botão de fechar
-  activePopup.value.on('close', () => {
-    selectedRadarId.value = null
-    radarIndicators.value = []
-    activePopup.value = null
-  })
-}
+    let htmlContent = `<h4 class="text-base font-bold text-gray-900 mb-2">Radar: ${radarId}</h4>`
 
-// --- Funções de Utilitário ---
+    if (indicadores.length === 0) {
+      htmlContent += '<p class="text-sm text-gray-600">Nenhum indicador encontrado para este radar.</p>'
+    } else {
+      htmlContent += '<ul class="space-y-1">'
+      indicadores.forEach(ind => {
+        htmlContent += `
+          <li class="flex justify-between items-center text-sm">
+            <span class="font-medium text-gray-700">${ind.indicador.nome}:</span>
+            <span class="font-semibold text-blue-600">${ind.indicador.valor}</span>
+          </li>
+        `
+      })
+      htmlContent += '</ul>'
+    }
 
-function retryLoadMap() {
-  errorMsg.value = ''
-  isLoading.value = true
-  location.reload()
+    popupContent.innerHTML = htmlContent
+
+    activePopup.value = new Popup({
+      closeButton: true,
+      closeOnClick: false,
+      offset: 25,
+      maxWidth: '300px'
+    })
+      .setLngLat(coordinates)
+      .setDOMContent(popupContent)
+      .addTo(map.value!)
+      
+    // Adicionar listener para fechar o pop-up ao clicar no botão de fechar
+    activePopup.value.on('close', () => {
+      selectedRadarId.value = null
+      radarIndicators.value = []
+      activePopup.value = null
+    })
+  }, 50)
 }
 </script>
 

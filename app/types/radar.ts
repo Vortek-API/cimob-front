@@ -1,3 +1,5 @@
+import type { Indicador } from "./indicador";
+
 export interface Radar {
   radarId: string;
   regiaoId: number;
@@ -8,12 +10,6 @@ export interface Radar {
 }
 
 export interface IndicadorRadar {
-  indicadorId: number;
-  nome: string;
-  valor: number;
-  mnemonico: string;
-  oculto: boolean;
-  descricao: string;
-  usuarioId: number;
+  indicador: Indicador
   radarId: string;
 }
