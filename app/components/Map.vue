@@ -130,7 +130,7 @@ const loadingMessage = ref('Inicializando mapa...')
 
 // Layer Visibility
 const showRadars = ref(true)
-const showPontos = ref(true)
+const showPontos = ref(false)
 
 // Data Counts
 const radarCount = ref(0)
@@ -141,6 +141,8 @@ const activePopup = shallowRef<Popup | null>(null)
 const selectedRadarId = ref<string | null>(null)
 const radarIndicators = ref<IndicadorRadar[]>([])
 const isFetchingIndicators = ref(false)
+
+const radarGeojson = ref<FeatureCollection<Point, GeoJsonProperties> | null>(null)
 
 // Watch for layer visibility changes
 watch(showRadars, (value) => {
@@ -200,17 +202,24 @@ onMounted(async () => {
         
         try {
       try {
-        loadingMessage.value = 'Carregando ícones de radares...'
-        await map.value!.loadImage('/images/radar-icon.png')
-          .then(img => {
-            if (!map.value!.hasImage('radar-icon')) {
-              map.value!.addImage('radar-icon', img.data)
+        const radarIcons = [
+          { path: '/images/radar-icon.png', name: 'radar-icon' },
+          { path: '/images/radar-icon-green.png', name: 'radar-icon-green' },
+          { path: '/images/radar-icon-orange.png', name: 'radar-icon-orange' },
+          { path: '/images/radar-icon-red.png', name: 'radar-icon-red' }
+        ]
+
+        for (const icon of radarIcons) {
+          loadingMessage.value = `Carregando ícone ${icon.name}...`
+          try {
+            const img = await map.value!.loadImage(icon.path)
+            if (!map.value!.hasImage(icon.name)) {
+              map.value!.addImage(icon.name, img.data)
             }
-          })
-          .catch(err => {
-            console.error('Erro ao carregar imagem de radar:', err)
-            throw new Error('Falha ao carregar ícone de radar')
-          })
+          } catch (err) {
+            console.warn(`Falha ao carregar ${icon.path}:`, err)
+          }
+        }
 
         loadingMessage.value = 'Buscando dados de radares...'
         const radars = await fetchRadars()
@@ -284,10 +293,13 @@ function addRadarLayer(radars: Radar[]) {
       },
       properties: {
         id: radar.radarId,
-        type: 'radar'
+        type: 'radar',
+        icon: 'radar-icon'
       }
     }))
   }
+
+  radarGeojson.value = geojson
 
   if (!map.value.getSource('radars')) {
     map.value.addSource('radars', {
@@ -302,7 +314,7 @@ function addRadarLayer(radars: Radar[]) {
       type: 'symbol',
       source: 'radars',
       layout: {
-        'icon-image': 'radar-icon',
+        'icon-image': ['get', 'icon'],
         'icon-size': 1,
         'icon-allow-overlap': true
       }
@@ -343,7 +355,8 @@ function addPontoLayer(pontos: Ponto[]) {
       layout: {
         'icon-image': 'bus-icon',
         'icon-size': 1,
-        'icon-allow-overlap': true
+        'icon-allow-overlap': true,
+        'visibility': showPontos.value ? 'visible' : 'none'
       }
     })
   }
@@ -373,39 +386,54 @@ async function handleRadarClick(e: any) {
   radarIndicators.value = []
   isFetchingIndicators.value = true
 
-  // Criar um pop-up temporário de carregamento
-  const loadingContent = document.createElement('div')
-  loadingContent.className = 'p-2 text-center'
-  loadingContent.innerHTML = '<p class="text-sm font-medium text-gray-700">Carregando indicadores...</p>'
+  let indicadores = indicadoresRadar.value.filter(ind => ind.radarId === radarId)
+ 
+  if (indicadores.length === 0) {
+    const loadingContent = document.createElement('div')
+    loadingContent.className = 'p-2 text-center'
+    loadingContent.innerHTML = '<p class="text-sm font-medium text-gray-700">Carregando indicadores...</p>'
 
-  activePopup.value = new Popup({
-    closeButton: true,
-    closeOnClick: false,
-    offset: 25,
-    maxWidth: '300px'
-  })
-    .setLngLat(coordinates)
-    .setDOMContent(loadingContent)
-    .addTo(map.value!)
+    activePopup.value = new Popup({
+      closeButton: true,
+      closeOnClick: false,
+      offset: 25,
+      maxWidth: '300px'
+    })
+      .setLngLat(coordinates)
+      .setDOMContent(loadingContent)
+      .addTo(map.value!)
 
-  try {
-    const indicadores = indicadoresRadar.value.filter(ind => ind.radarId === radarId)
+    const stopWatcher = watch(indicadoresRadar, (newIndicadores) => {
+      const newRadarIndicators = newIndicadores.filter(ind => ind.radarId === radarId)
+      
+      if (newRadarIndicators.length > 0) {
+        stopWatcher()
+        isFetchingIndicators.value = false
+        radarIndicators.value = newRadarIndicators
+        updatePopupContent(coordinates, radarId, newRadarIndicators)
+      }
+    }, { deep: true })
+  } else {
+    isFetchingIndicators.value = false
     radarIndicators.value = indicadores
-    isFetchingIndicators.value = false
-    
-    // Atualizar o conteúdo do pop-up com os indicadores
     updatePopupContent(coordinates, radarId, indicadores)
-
-  } catch (error) {
-    console.error('Erro ao buscar indicadores do radar:', error)
-    isFetchingIndicators.value = false
-    
-    const errorContent = document.createElement('div')
-    errorContent.className = 'p-2 text-center'
-    errorContent.innerHTML = '<p class="text-sm font-medium text-red-600">Erro ao carregar indicadores.</p>'
-    
-    activePopup.value?.setDOMContent(errorContent)
   }
+}
+
+function getIconNameFromValor(valor: number | null | undefined) {
+  if (valor == null || isNaN(valor)) return 'radar-icon'
+  if (valor > 0 && valor < 1.9) return 'radar-icon-green'
+  if (valor >= 2 && valor < 2.5) return 'radar-icon-orange'
+  if (valor >= 2.5) return 'radar-icon-red'
+  return 'radar-icon'
+}
+
+function getColorClassForValor(valor: number | null | undefined) {
+  if (valor == null || isNaN(valor)) return 'text-gray-700'
+  if (valor > 0 && valor < 1.9) return 'text-green-600'
+  if (valor >= 2 && valor < 2.5) return 'text-orange-500'
+  if (valor >= 2.5) return 'text-red-600'
+  return 'text-gray-700'
 }
 
 function updatePopupContent(coordinates: [number, number], radarId: string, indicadores: IndicadorRadar[]) {
@@ -424,10 +452,14 @@ function updatePopupContent(coordinates: [number, number], radarId: string, indi
     } else {
       htmlContent += '<ul class="space-y-1">'
       indicadores.forEach(ind => {
+        const valorRaw = ind.indicador?.valor ?? null
+        const valorNum = parseFloat(String(valorRaw))
+        const colorClass = getColorClassForValor(isNaN(valorNum) ? null : valorNum)
+
         htmlContent += `
           <li class="flex justify-between items-center text-sm">
             <span class="font-medium text-gray-700">${ind.indicador.nome}:</span>
-            <span class="font-semibold text-blue-600">${ind.indicador.valor}</span>
+            <span class="font-semibold ${colorClass}">${ind.indicador.valor}</span>
           </li>
         `
       })
@@ -454,6 +486,37 @@ function updatePopupContent(coordinates: [number, number], radarId: string, indi
     })
   }, 50)
 }
+
+watch(indicadoresRadar, () => {
+  if (!map.value || !radarGeojson.value || !map.value.getSource('radars')) return
+
+  const updated = JSON.parse(JSON.stringify(radarGeojson.value)) as FeatureCollection<Point, GeoJsonProperties>
+
+  updated.features = updated.features.map(f => {
+    const radarId = f.properties?.id
+    const related = indicadoresRadar.value.filter(ind => ind.radarId === radarId)
+
+    let maxValor = Number.NaN
+    if (related.length > 0) {
+      maxValor = related.reduce((acc, cur) => {
+        const v = parseFloat(String(cur.indicador?.valor ?? NaN))
+        if (isNaN(v)) return acc
+        return isNaN(acc) ? v : Math.max(acc, v)
+      }, Number.NaN)
+    }
+
+    const iconName = getIconNameFromValor(isNaN(maxValor) ? null : maxValor)
+    f.properties = { ...f.properties, icon: iconName }
+    return f
+  })
+
+  try {
+    (map.value.getSource('radars') as any).setData(updated)
+    radarGeojson.value = updated
+  } catch (err) {
+    console.error('Erro ao atualizar ícones dos radares:', err)
+  }
+}, { deep: true })
 </script>
 
 <style scoped>
