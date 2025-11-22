@@ -22,7 +22,17 @@ export function getCurrentWindowTimestamp(): Date {
   const initialTime = getInitialTimestamp()
   // Avança o timestamp baseado no número de ciclos
   const currentWindow = new Date(initialTime.getTime() + (cycleCount.value * APP_CONFIG.TIME_WINDOW_MINUTES * 60 * 1000))
-  return currentWindow
+
+  // Lógica de padronização: arredondar minutos para o múltiplo de 5 mais próximo (para baixo)
+  const date = new Date(currentWindow)
+  const minutes = date.getMinutes()
+  const roundedMinutes = Math.floor(minutes / 5) * 5
+  
+  date.setMinutes(roundedMinutes)
+  date.setSeconds(0) // Zera os segundos para padronização
+  date.setMilliseconds(0) // Zera os milissegundos
+
+  return date
 }
 
 // Função para avançar o ciclo (chamada a cada auto-refresh)

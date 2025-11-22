@@ -6,3 +6,14 @@ export interface Radar {
   endereco: string;
   velocidadePermitida: number;
 }
+
+export interface IndicadorRadar {
+  indicadorId: number;
+  nome: string;
+  valor: number;
+  mnemonico: string;
+  oculto: boolean;
+  descricao: string;
+  usuarioId: number;
+  radarId: string;
+}
