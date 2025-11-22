@@ -67,7 +67,6 @@
   }
 
   function salvarNovoIndicador(dadosDoFormulario: any) {
-    console.log("Salvando os Dados: ", dadosDoFormulario);
     // futuramente eu posso chamar uma API para criar o indicador
     fecharModal();
   }

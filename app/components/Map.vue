@@ -390,7 +390,6 @@ async function handleRadarClick(e: any) {
 
   try {
     const indicadores = indicadoresRadar.value.filter(ind => ind.radarId === radarId)
-    console.log(indicadores);
     radarIndicators.value = indicadores
     isFetchingIndicators.value = false
     
