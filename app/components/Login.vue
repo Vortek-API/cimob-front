@@ -55,14 +55,14 @@
                 </button>
               </label>
 
-              <a class="password" href="#">Esqueceu a senha?</a>
+              <a class="password" href="#" @click.prevent="esqueciSenha">Esqueceu a senha?</a>
               <button class="btn btn-second" type="submit">Entrar</button>
             </form>
 
           </div>
         </div>
 
-        <!-- Primeira Tela: Administrador (esquerda) / Usuário (direita) -->
+        <!-- Primeira Tela: Administrador (esquerda ) / Usuário (direita) -->
         <div class="content first-content">
           <div class="column first-column-panel">
             <h2 class="title title-primary">Já Sou CIMOB!</h2>
@@ -120,22 +120,25 @@
     </div>
 
   </div>
+
+  <!-- NOVO: Componente do Modal de Recuperação de Senha -->
+  <PasswordRec :isVisible="isModalForgotPasswordVisible" @update:isVisible="isModalForgotPasswordVisible = $event" />
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import imgCimo from "/images/cimob.png";
 
+// NOVO: Importação do componente de modal (Corrigido para caminho relativo )
+import PasswordRec from "~/components/PasswordRec.vue";
+
 import { autenticarUsuario, cadastrar } from "~/services/autenticador-api";
-import { getUsuarioByEmail } from "~/services/usuario-api"; // ALTERAÇÃO: Importação para buscar o usuário
-import { useAuthStore } from "~/store/authStore"; // ALTERAÇÃO: Importação do Auth Store
+import { getUsuarioByEmail } from "~/services/usuario-api";
+import { useAuthStore } from "~/store/authStore";
 import type { Usuario } from "~/types/usuario";
 import { useRouter } from 'vue-router';
 
 import { alertSucesso, alertAviso } from "~/composables/useAlerts";
-
-// Importações do código de referência para logo (ajustar caminhos conforme sua estrutura de projeto )
-// import svgPathsImport from \'~/assets/svgPaths\'; // Se você estiver usando SVGs inline como no exemplo
 
 // Estado do painel para alternar entre as telas
 const loginAdminCimob = ref(false); // controla se está na tela de login admin ou cadastro usuário
@@ -154,6 +157,9 @@ const mostrarSenhaAdmin = ref(false);
 
 // Controle de loading (opcional, se for integrar com API)
 const loading = ref(false);
+
+// NOVO: Controle de visibilidade do modal de recuperação de senha
+const isModalForgotPasswordVisible = ref(false);
 
 // Alternar tela
 const togglePanel = () => {
@@ -224,12 +230,18 @@ const cadastrarUserCimob = async () => {
     loading.value = false;
   }
 };
+
+// ALTERADO: Função para abrir o modal de recuperação de senha (em vez de usar prompt)
+const esqueciSenha = () => {
+  isModalForgotPasswordVisible.value = true;
+};
+
 </script>
 
 <style scoped>
 /* Importação de fontes e ícones */
-@import url('https://use.fontawesome.com/releases/v5.8.2/css/all.css' );
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap' );
+@import url('https://use.fontawesome.com/releases/v5.8.2/css/all.css'  );
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap'  );
 
 * {
   margin: 0;
@@ -502,6 +514,11 @@ body {
   margin: 15px 0;
   text-align: center;
   text-decoration: none;
+}
+
+.password:hover {
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .footer-text {
