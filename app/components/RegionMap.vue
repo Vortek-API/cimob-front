@@ -106,7 +106,7 @@ onMounted(async () => {
     mapConfig.apiKey = publicConfig.MAPTILER_API_KEY
 
     // Centro de São José dos Campos
-    const initialState = { lng: -45.88688, lat: -23.18935, zoom: 11.5 }
+    const initialState = { lng: -45.88688, lat: -23.18935, zoom: 5.5 }
 
     map.value = markRaw(
       new Map({
@@ -237,28 +237,9 @@ function addRegionLayers() {
 function selectRegiao(regiaoId: number | null) {
   selectedRegiaoId.value = regiaoId
   setRegiaoSelecionada(regiaoId)
-  updateRegionHighlight(regiaoId)
   
   const timestampAtual = getCurrentWindowTimestampString()
   reloadIndicadores(regiaoId || undefined, timestampAtual)
-}
-
-function updateRegionHighlight(regiaoId: number | null) {
-  if (!map.value || !map.value.getSource('regions')) return
-
-  regioesPolygons.forEach(regiao => {
-    map.value!.setFeatureState(
-      { source: 'regions', id: regiao.regiaoId },
-      { selected: false }
-    )
-  })
-
-  if (regiaoId) {
-    map.value.setFeatureState(
-      { source: 'regions', id: regiaoId },
-      { selected: true }
-    )
-  }
 }
 
 function getSelectedRegiaoName(): string {
