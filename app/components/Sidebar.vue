@@ -51,6 +51,11 @@ const items: NavigationMenuItem[] = [
     to: '/map',
   },
   {
+    label: 'Eventos',
+    icon: 'i-lucide-calendar',
+    to: '/eventos',
+  },
+  {
     label: 'Dashboard',
     icon: 'i-lucide-chart-no-axes-combined',
     defaultOpen: true,

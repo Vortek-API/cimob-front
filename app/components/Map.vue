@@ -79,6 +79,14 @@
             />
             <span class="text-sm font-medium text-gray-700">Pontos de Ônibus</span>
           </label>
+          <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+            <input
+              v-model="showEventos"
+              type="checkbox"
+              class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+            />
+            <span class="text-sm font-medium text-gray-700">Eventos Externos</span>
+          </label>
         </div>
       </div>
     </Transition>
@@ -95,6 +103,10 @@
             <p class="text-2xl font-bold text-green-600">{{ pontoCount }}</p>
             <p class="text-xs text-gray-600 mt-1">Pontos</p>
           </div>
+          <div class="text-center">
+            <p class="text-2xl font-bold text-orange-600">{{ eventoCount }}</p>
+            <p class="text-xs text-gray-600 mt-1">Eventos</p>
+          </div>
         </div>
       </div>
     </Transition>
@@ -110,6 +122,8 @@ import { fetchRadars } from '~/services/radar-api'
 import type { Radar } from '~/types/radar'
 import { fetchPontos } from '~/services/ponto-api'
 import type { Ponto } from '~/types/ponto'
+import { listarEventosExternos } from '~/services/evento-api'
+import type { EventoExterno } from '~/services/evento-api'
 
 const mapContainer = shallowRef<HTMLElement | null>(null)
 const map = shallowRef<Map | null>(null)
@@ -123,10 +137,12 @@ const loadingMessage = ref('Inicializando mapa...')
 // Layer Visibility
 const showRadars = ref(true)
 const showPontos = ref(true)
+const showEventos = ref(true)
 
 // Data Counts
 const radarCount = ref(0)
 const pontoCount = ref(0)
+const eventoCount = ref(0)
 
 // Watch for layer visibility changes
 watch(showRadars, (value) => {
@@ -138,6 +154,12 @@ watch(showRadars, (value) => {
 watch(showPontos, (value) => {
   if (map.value && map.value.getLayer('pontos-layer')) {
     map.value.setLayoutProperty('pontos-layer', 'visibility', value ? 'visible' : 'none')
+  }
+})
+
+watch(showEventos, (value) => {
+  if (map.value && map.value.getLayer('eventos-layer')) {
+    map.value.setLayoutProperty('eventos-layer', 'visibility', value ? 'visible' : 'none')
   }
 })
 
@@ -194,6 +216,22 @@ onMounted(async () => {
         const pontos = await fetchPontos()
         pontoCount.value = pontos.length
         addPontoLayer(pontos)
+
+        loadingMessage.value = 'Carregando ícones de eventos...'
+        await map.value!.loadImage('/images/event-icon.png')
+          .then(img => {
+            if (!map.value!.hasImage('event-icon')) {
+              map.value!.addImage('event-icon', img.data)
+            }
+          })
+          .catch(err => {
+            console.warn('Ícone de evento não encontrado, usando ícone padrão:', err)
+          })
+
+        loadingMessage.value = 'Buscando dados de eventos externos...'
+        const eventos = await listarEventosExternos()
+        eventoCount.value = eventos.length
+        addEventoLayer(eventos)
 
         isLoading.value = false
         mapLoaded.value = true
@@ -294,6 +332,75 @@ function addPontoLayer(pontos: Ponto[]) {
         'icon-size': 1,
         'icon-allow-overlap': true
       }
+    })
+  }
+}
+
+function addEventoLayer(eventos: EventoExterno[]) {
+  if (!map.value) return
+
+  const geojson: FeatureCollection<Point, GeoJsonProperties> = {
+    type: 'FeatureCollection',
+    features: eventos.map(evento => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [evento.longitude || 0, evento.latitude || 0]
+      },
+      properties: {
+        id: evento.eventoId,
+        type: 'evento',
+        nome: evento.nome,
+        descricao: evento.descricao,
+        data: evento.data
+      }
+    }))
+  }
+
+  if (!map.value.getSource('eventos')) {
+    map.value.addSource('eventos', {
+      type: 'geojson',
+      data: geojson
+    })
+  }
+
+  if (!map.value.getLayer('eventos-layer')) {
+    map.value.addLayer({
+      id: 'eventos-layer',
+      type: 'circle',
+      source: 'eventos',
+      paint: {
+        'circle-radius': 8,
+        'circle-color': '#ff6b35',
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#fff'
+      }
+    })
+
+    // Adicionar popup ao clicar em um evento
+    map.value.on('click', 'eventos-layer', (e) => {
+      if (e.features && e.features.length > 0) {
+        const feature = e.features[0]
+        const props = feature.properties
+        const popup = new (window as any).maplibregl.Popup()
+          .setLngLat((e.lngLat as any))
+          .setHTML(`
+            <div class="p-3 max-w-xs">
+              <h3 class="font-bold text-gray-900 mb-1">${props.nome}</h3>
+              <p class="text-sm text-gray-600 mb-2">${props.descricao}</p>
+              <p class="text-xs text-gray-500">Data: ${new Date(props.data).toLocaleDateString('pt-BR')}</p>
+            </div>
+          `)
+          .addTo(map.value!)
+      }
+    })
+
+    // Mudar cursor ao passar sobre evento
+    map.value.on('mouseenter', 'eventos-layer', () => {
+      if (map.value) map.value.getCanvas().style.cursor = 'pointer'
+    })
+    map.value.on('mouseleave', 'eventos-layer', () => {
+      if (map.value) map.value.getCanvas().style.cursor = ''
     })
   }
 }
