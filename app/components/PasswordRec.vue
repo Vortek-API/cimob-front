@@ -89,7 +89,7 @@ const submitForm = async () => {
 
   try {
     // Chamar a API de recuperação de senha
-    // await recuperarSenha(email.value.trim());
+    await recuperarSenha(email.value.trim());
     console.log('Tentativa de recuperação de senha para:', email.value);
   } catch (err) {
     // Mesmo se der erro porque o email não existe, a resposta pro usuário é a mesma (por segurança)

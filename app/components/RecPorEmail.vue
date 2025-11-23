@@ -91,11 +91,18 @@
     </div>
   </div>
 </template>
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { redefinirSenha } from "~/services/autenticador-api";
+import { alertSucesso, alertAviso } from "~/composables/useAlerts";
+
+const route = useRoute();
+const router = useRouter();
 
 const novaSenha = ref("");
 const confirmarSenha = ref("");
+const token = ref("");
 
 const mostrarSenha = ref(false);
 const mostrarSenhaConfirm = ref(false);
@@ -107,6 +114,16 @@ const regraMinCaracteres = ref(false);
 const mensagem = ref("");
 const tipoMensagem = ref(""); // erro | sucesso
 
+onMounted(() => {
+  token.value = route.query.token as string;
+  if (!token.value) {
+    mensagem.value = "Token inválido ou ausente.";
+    tipoMensagem.value = "erro";
+    // Opcional: Redirecionar após um tempo
+    // setTimeout(() => router.push('/login'), 3000);
+  }
+});
+
 const validarSenha = () => {
   const s = novaSenha.value;
 
@@ -115,7 +132,7 @@ const validarSenha = () => {
   regraMinCaracteres.value = s.length >= 8;
 };
 
-const salvar = () => {
+const salvar = async () => {
   if (!regraEspecial.value || !regraMaiuscula.value || !regraMinCaracteres.value) {
     mensagem.value = "A senha não atende aos requisitos.";
     tipoMensagem.value = "erro";
@@ -128,8 +145,27 @@ const salvar = () => {
     return;
   }
 
-  mensagem.value = "Senha redefinida com sucesso!";
-  tipoMensagem.value = "sucesso";
+  if (!token.value) {
+    mensagem.value = "Token inválido.";
+    tipoMensagem.value = "erro";
+    return;
+  }
+
+  try {
+    await redefinirSenha(token.value, novaSenha.value);
+    mensagem.value = "Senha redefinida com sucesso!";
+    tipoMensagem.value = "sucesso";
+    alertSucesso("Senha redefinida com sucesso!");
+    
+    // Redirecionar para login após sucesso
+    setTimeout(() => {
+      router.push('/login');
+    }, 2000);
+  } catch (error: any) {
+    console.error("Erro ao redefinir:", error);
+    mensagem.value = "Erro ao redefinir senha. O link pode ter expirado.";
+    tipoMensagem.value = "erro";
+  }
 };
 </script>
 <style scoped>
