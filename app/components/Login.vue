@@ -190,9 +190,6 @@ const loginAdmin = async () => {
     const usuarioData = await getUsuarioByEmail(emailAdminCimob.value.trim());
     authStore.setUsuario(usuarioData);
 
-    console.log("authStore.usuario: ", authStore.usuario);
-    console.log("usuarioData: ", usuarioData);
-
     alertSucesso("Login realizado com sucesso!");
     router.push('/home');
   } catch (error: any) {
