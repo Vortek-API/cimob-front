@@ -103,9 +103,10 @@
 
 <script setup lang="ts">
 import { Map, MapStyle, config as mapConfig } from '@maptiler/sdk'
-import type { FeatureCollection, Point, GeoJsonProperties } from 'geojson'
+import type { FeatureCollection, Point, Polygon, GeoJsonProperties } from 'geojson'
 import { shallowRef, onMounted, onUnmounted, markRaw, ref, watch } from 'vue'
 import '@maptiler/sdk/dist/maptiler-sdk.css'
+import { regioesPolygons } from '~/data/regioes-polygons'
 import { fetchRadars } from '~/services/radar-api'
 import type { Radar } from '~/types/radar'
 import { fetchPontos } from '~/services/ponto-api'
@@ -146,7 +147,7 @@ onMounted(async () => {
     const { public: publicConfig } = useRuntimeConfig()
     mapConfig.apiKey = publicConfig.MAPTILER_API_KEY
 
-    const initialState = { lng: -45.85477630787629, lat: -23.21252050854134, zoom: 12 }
+    const initialState = { lng: -45.85477630787629, lat: -23.21252050854134, zoom: 11 }
 
     loadingMessage.value = 'Criando instância do mapa...'
 
@@ -161,6 +162,8 @@ onMounted(async () => {
 
     map.value.on('load', async () => {
       try {
+        addRegionLayers()
+
         loadingMessage.value = 'Carregando ícones de radares...'
         await map.value!.loadImage('/images/radar-icon.png')
           .then(img => {
@@ -199,7 +202,7 @@ onMounted(async () => {
         mapLoaded.value = true
       } catch (err) {
         console.error('Erro ao carregar camadas do mapa:', err)
-        errorMsg.value = err instanceof Error ? err.message : 'Erro desconhecido ao carregar dados do mapa'
+        // errorMsg.value = err instanceof Error ? err.message : 'Erro desconhecido ao carregar dados do mapa'
         isLoading.value = false
       }
     })
@@ -219,6 +222,71 @@ onMounted(async () => {
 onUnmounted(() => {
   map.value?.remove()
 })
+
+function addRegionLayers() {
+  if (!map.value) return
+
+  const geojson: FeatureCollection<Polygon, GeoJsonProperties> = {
+    type: 'FeatureCollection',
+    features: regioesPolygons.map(regiao => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: regiao.coordinates
+      },
+      properties: {
+        regiaoId: regiao.regiaoId,
+        nome: regiao.nome,
+        color: regiao.color
+      }
+    }))
+  }
+
+  if (!map.value.getSource('regions')) {
+    map.value.addSource('regions', {
+      type: 'geojson',
+      data: geojson
+    })
+  }
+
+  // Add fill layer
+  if (!map.value.getLayer('regions-fill')) {
+    map.value.addLayer({
+      id: 'regions-fill',
+      type: 'fill',
+      source: 'regions',
+      paint: {
+        'fill-color': ['get', 'color'],
+        'fill-opacity': [
+          'case',
+          ['boolean', ['feature-state', 'selected'], false],
+          0.6,
+          0.3
+        ]
+      }
+    })
+  }
+
+  // Add outline layer
+  if (!map.value.getLayer('regions-outline')) {
+    map.value.addLayer({
+      id: 'regions-outline',
+      type: 'line',
+      source: 'regions',
+      paint: {
+        'line-color': ['get', 'color'],
+        'line-width': [
+          'case',
+          ['boolean', ['feature-state', 'selected'], false],
+          3,
+          2
+        ],
+        'line-opacity': 0.8
+      }
+    })
+  }
+}
+
 
 function addRadarLayer(radars: Radar[]) {
   if (!map.value) return
