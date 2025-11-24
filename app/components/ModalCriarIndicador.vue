@@ -165,9 +165,6 @@ onMounted(async () => {
     if (indicadoresSelecionados.value.length > 0) {
       detalheAberto.value = indicadoresSelecionados.value[0]!.id;
     }
-
-    console.log('Indicadores carregados:', indicators.value);
-    console.log('Indicadores pré-selecionados:', indicadoresSelecionados.value);
   } catch (error) {
     console.error('Erro ao carregar indicadores:', error)
   }

@@ -21,7 +21,6 @@ export function getApi(basePath = ""): AxiosInstance {
             const auth = useAuthStore();
             const token = auth?.token;
             if (token && cfg.headers) (cfg.headers as any).Authorization = `Bearer ${token}`;
-                console.log("Added Authorization header to request:", cfg);
         }
     } catch (e) {
     }
