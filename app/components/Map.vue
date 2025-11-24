@@ -1,40 +1,45 @@
 <template>
-  <div class="relative w-full h-full bg-gray-100">
+  <div class="relative w-full h-full bg-gradient-to-br from-slate-100 to-slate-50">
     <!-- Map Container -->
-    <div class="map-wrap" :class="{ 'opacity-50': isLoading }">
-      <div class="map" ref="mapContainer"></div>
+    <div class="map-wrap absolute inset-0" :class="{ 'opacity-50': isLoading }">
+      <div class="map w-full h-full" ref="mapContainer"></div>
     </div>
 
     <!-- Loading Overlay -->
     <Transition name="fade">
-      <div v-if="isLoading" class="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-40">
-        <div class="bg-white rounded-lg shadow-xl p-8 text-center">
-          <div class="mb-4">
-            <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <div v-if="isLoading" class="absolute inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-sm">
+          <div class="mb-6">
+            <svg class="animate-spin h-12 w-12 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
             </svg>
           </div>
-          <p class="text-sm font-medium text-gray-900">Carregando mapa...</p>
-          <p class="text-xs text-gray-600 mt-1">{{ loadingMessage }}</p>
+          <p class="text-lg font-semibold text-slate-900 mb-2">Carregando mapa</p>
+          <p class="text-sm text-slate-600">{{ loadingMessage }}</p>
+          <div class="mt-4 w-full bg-slate-200 rounded-full h-1 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 h-full w-2/3 animate-pulse"></div>
+          </div>
         </div>
       </div>
     </Transition>
 
     <!-- Error Overlay -->
     <Transition name="fade">
-      <div v-if="errorMsg" class="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-40">
-        <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm">
+      <div v-if="errorMsg" class="absolute inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm">
           <div class="flex items-start gap-4">
-            <svg class="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+              <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
             <div class="flex-1">
-              <h3 class="text-sm font-semibold text-gray-900">Erro ao carregar mapa</h3>
-              <p class="text-sm text-gray-600 mt-2">{{ errorMsg }}</p>
+              <h3 class="text-lg font-semibold text-slate-900">Erro ao carregar mapa</h3>
+              <p class="text-sm text-slate-600 mt-2">{{ errorMsg }}</p>
               <button
                 @click="retryLoadMap"
-                class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                class="mt-4 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-semibold rounded-lg transition-all duration-200 hover:shadow-lg"
               >
                 Tentar Novamente
               </button>
@@ -44,56 +49,74 @@
       </div>
     </Transition>
 
-    <!-- Map Controls Info (Bottom Right) -->
-    <Transition name="slide-up">
-      <div v-if="!isLoading && !errorMsg && mapLoaded" class="absolute bottom-6 right-6 bg-white rounded-lg shadow-lg p-4 border border-gray-200 z-30 max-w-xs">
-        <div class="flex items-start gap-3">
-          <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          <div>
-            <p class="text-xs font-semibold text-gray-900">Dica</p>
-            <p class="text-xs text-gray-600 mt-1">Use o zoom e arraste para explorar o mapa. Clique nos ícones para mais detalhes.</p>
+    <!-- Stats Panel (Top Left) - Melhorado -->
+    <Transition name="slide-down">
+      <div v-if="!isLoading && !errorMsg && mapLoaded" class="absolute top-6 left-6 bg-white rounded-2xl shadow-xl border border-slate-200 p-6 z-30 max-w-sm backdrop-blur-sm bg-white/95">
+        <div class="space-y-4">
+          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest">Estatísticas</h3>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+              <div class="flex items-center gap-2 mb-2">
+                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+                </svg>
+                <p class="text-xs font-semibold text-blue-900">Radares</p>
+              </div>
+              <p class="text-2xl font-bold text-blue-600">{{ radarCount }}</p>
+            </div>
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+              <div class="flex items-center gap-2 mb-2">
+                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.06c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                </svg>
+                <p class="text-xs font-semibold text-green-900">Pontos</p>
+              </div>
+              <p class="text-2xl font-bold text-green-600">{{ pontoCount }}</p>
+            </div>
           </div>
         </div>
       </div>
     </Transition>
 
-    <!-- Layer Toggle (Top Right) -->
+    <!-- Layer Toggle (Top Right) - Melhorado -->
     <Transition name="slide-down">
-      <div v-if="!isLoading && !errorMsg && mapLoaded" class="absolute top-6 right-6 bg-white rounded-lg shadow-lg border border-gray-200 p-3 z-30">
-        <div class="space-y-2">
-          <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+      <div v-if="!isLoading && !errorMsg && mapLoaded" class="absolute top-6 right-6 bg-white rounded-2xl shadow-xl border border-slate-200 p-4 z-30 backdrop-blur-sm bg-white/95">
+        <div class="space-y-3">
+          <h3 class="text-xs font-bold text-slate-900 uppercase tracking-widest px-2">Camadas</h3>
+          <label class="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors">
             <input
               v-model="showRadars"
               type="checkbox"
-              class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+              class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 cursor-pointer"
             />
-            <span class="text-sm font-medium text-gray-700">Radares</span>
+            <span class="text-sm font-medium text-slate-700">Radares</span>
+            <span class="ml-auto text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">{{ radarCount }}</span>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+          <label class="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-2 rounded-lg transition-colors">
             <input
               v-model="showPontos"
               type="checkbox"
-              class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+              class="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500 cursor-pointer"
             />
-            <span class="text-sm font-medium text-gray-700">Pontos de Ônibus</span>
+            <span class="text-sm font-medium text-slate-700">Pontos de Ônibus</span>
+            <span class="ml-auto text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full font-semibold">{{ pontoCount }}</span>
           </label>
         </div>
       </div>
     </Transition>
 
-    <!-- Stats Panel (Top Left) -->
-    <Transition name="slide-down">
-      <div v-if="!isLoading && !errorMsg && mapLoaded" class="absolute top-6 left-6 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-30 max-w-xs">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="text-center">
-            <p class="text-2xl font-bold text-blue-600">{{ radarCount }}</p>
-            <p class="text-xs text-gray-600 mt-1">Radares</p>
+    <!-- Info Tip (Bottom Right) -->
+    <Transition name="slide-up">
+      <div v-if="!isLoading && !errorMsg && mapLoaded" class="absolute bottom-6 right-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl shadow-xl border border-blue-200 p-4 z-30 max-w-xs backdrop-blur-sm">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
           </div>
-          <div class="text-center">
-            <p class="text-2xl font-bold text-green-600">{{ pontoCount }}</p>
-            <p class="text-xs text-gray-600 mt-1">Pontos</p>
+          <div>
+            <p class="text-xs font-bold text-blue-900 uppercase tracking-widest">Dica</p>
+            <p class="text-sm text-blue-700 mt-1">Use zoom e arraste para explorar. Clique nos ícones para mais detalhes sobre radares e pontos.</p>
           </div>
         </div>
       </div>
@@ -487,6 +510,16 @@ function updatePopupContent(coordinates: [number, number], radarId: string, indi
   }, 50)
 }
 
+function retryLoadMap() {
+  // Clear error state and show loading overlay, then reload to reinitialize the map
+  errorMsg.value = ''
+  isLoading.value = true
+  // Simple and reliable way to retry: reload the page so the map init runs again
+  if (typeof window !== 'undefined' && window.location) {
+    window.location.reload()
+  }
+}
+
 watch(indicadoresRadar, () => {
   if (!map.value || !radarGeojson.value || !map.value.getSource('radars')) return
 
@@ -520,20 +553,17 @@ watch(indicadoresRadar, () => {
 </script>
 
 <style scoped>
+.map {
+  width: 100%;
+  height: 100%;
+}
+
 .map-wrap {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: opacity 0.3s ease;
 }
 
-.map {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-}
-
-/* Transições */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -545,24 +575,29 @@ watch(indicadoresRadar, () => {
 }
 
 .slide-down-enter-active,
-.slide-down-leave-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.slide-down-enter-from,
-.slide-down-leave-to {
-  transform: translateY(-20px);
-  opacity: 0;
-}
-
+.slide-down-leave-active,
 .slide-up-enter-active,
 .slide-up-leave-active {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: all 0.3s ease;
 }
 
-.slide-up-enter-from,
-.slide-up-leave-to {
-  transform: translateY(20px);
+.slide-down-enter-from {
   opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 </style>
