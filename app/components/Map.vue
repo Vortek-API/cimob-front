@@ -279,6 +279,7 @@ async function loadMapData() {
   }
 
   // Adiciona camada de radares
+  addRegionLayers()
   addRadarLayers(radarGeojson.value)
 
 
