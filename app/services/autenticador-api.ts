@@ -39,15 +39,4 @@ export async function cadastrar(usuario: Usuario): Promise<Usuario> {
   return data;
 }
 
-  export const recuperarSenha = async (email: string) => {
-    const api = getApi('/auth');
-    return api.post("/recuperar-senha", { email });
-  };
-
-  export const redefinirSenha = async (token: string, newPassword: string) => {
-    const api = getApi('/auth');
-    return api.post("/redefinir-senha", { token, newPassword });
-  };
-
-
-  export default getApi;
+export default getApi;

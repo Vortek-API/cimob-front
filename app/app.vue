@@ -2,7 +2,6 @@
   <UApp>
     <NuxtLayout>
       <Notificacao />
-      <TelegramAdminButton />
       <NuxtPage />
     </NuxtLayout>
   </UApp>
@@ -10,7 +9,6 @@
 	
 <script setup lang="ts">
 import Notificacao from "~/components/Notificacao.vue";
-import TelegramAdminButton from "~/components/TelegramAdminButton.vue";
 
 useHead({
   link: [

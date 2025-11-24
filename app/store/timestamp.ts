@@ -18,39 +18,12 @@ export function getInitialTimestamp(): Date {
 }
 
 // Função para obter o timestamp atual da janela (avança a cada ciclo)
-// Agora sincroniza com o tempo real para evitar enviar janelas atrasadas.
 export function getCurrentWindowTimestamp(): Date {
   const initialTime = getInitialTimestamp()
-  const windowMs = APP_CONFIG.TIME_WINDOW_MINUTES * 60 * 1000
-  const now = Date.now()
-
-  // Quantos ciclos *deveriam* ter passado desde initialTime, baseado no relógio
-  const cyclesFromStart = Math.floor((now - initialTime.getTime()) / windowMs)
-
-  // Usa o maior entre o cycleCount atual e o cyclesFromStart
-  const effectiveCycles = Math.max(cycleCount.value, cyclesFromStart)
-
-  // Se estiver atrás, sincroniza o cycleCount e lastAdvanceTime para refletir o "peg"
-  if (effectiveCycles > cycleCount.value) {
-    cycleCount.value = effectiveCycles
-    lastAdvanceTime.value = now
-  }
-
-  // Calcula a janela atual
-  const currentWindow = new Date(initialTime.getTime() + (effectiveCycles * windowMs))
-
-  // Arredonda minutos para baixo para o múltiplo de 5 (como já fazia)
-  const date = new Date(currentWindow)
-  const minutes = date.getMinutes()
-  const roundedMinutes = Math.floor(minutes / 5) * 5
-
-  date.setMinutes(roundedMinutes)
-  date.setSeconds(0)
-  date.setMilliseconds(0)
-
-  return date
+  // Avança o timestamp baseado no número de ciclos
+  const currentWindow = new Date(initialTime.getTime() + (cycleCount.value * APP_CONFIG.TIME_WINDOW_MINUTES * 60 * 1000))
+  return currentWindow
 }
-
 
 // Função para avançar o ciclo (chamada a cada auto-refresh)
 export function advanceCycle(): void {
