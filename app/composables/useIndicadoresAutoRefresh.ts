@@ -1,5 +1,5 @@
 import { useAutoRefresh } from './useAutoRefresh'
-import { reloadIndicadores, reloadIndicadoresRadar } from '~/store/indicadores'
+import { reloadIndicadores } from '~/store/indicadores'
 import { regiaoSelecionada, setUltimaAtualizacao } from '~/store/filtro'
 import { getCurrentWindowTimestampString, advanceCycle } from '~/store/timestamp'
 
@@ -13,15 +13,4 @@ export function useIndicadoresAutoRefresh() {
   }
 
   return useAutoRefresh(atualizarIndicadores)
-}
-
-export function useIndicadoresRadarAutoRefresh() {
-  function atualizarIndicadoresRadar() {
-    advanceCycle()
-    
-    const timestampAtual = getCurrentWindowTimestampString()
-    reloadIndicadoresRadar(timestampAtual)
-  }
-
-  return useAutoRefresh(atualizarIndicadoresRadar)
 }
