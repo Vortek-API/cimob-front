@@ -8,8 +8,6 @@ import { fetchRegioes } from '~/services/regiao-api'
 
 type SelectItem = { label: string; value: number | null }
 
-const props = defineProps<{ disabled?: boolean }>()
-
 const { regiaoOptions } = useRegistrosVelocidade()
 const itemsFromDataset = computed<SelectItem[]>(() => regiaoOptions.value.length ? regiaoOptions.value : [
   { label: 'Todas as regiões', value: null }
@@ -55,7 +53,5 @@ watch(value, (newVal) => {
     v-model="value"
     :items="items"
     placeholder="Região"
-    :disabled="props.disabled"
-    :class="props.disabled ? 'opacity-60' : ''"
   />
 </template>

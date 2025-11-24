@@ -6,7 +6,6 @@ import { fetchRadars } from '~/services/radar-api'
 
 const { radars, selectedRadar } = useDashboard()
 const { radarOptions } = useRegistrosVelocidade()
-const props = defineProps<{ disabled?: boolean }>()
 
 function shorten(label: string): string {
   const max = 28
@@ -45,7 +44,6 @@ watch(radarOptions, (opts) => {
     placeholder="Radar (endereços)"
     searchable
     searchable-placeholder="Buscar radar..."
-    :disabled="props.disabled"
-    :class="props.disabled ? 'opacity-60 max-w-xs' : 'max-w-xs'"
+    class="max-w-xs"
   />
 </template>
