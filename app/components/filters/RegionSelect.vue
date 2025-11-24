@@ -1,26 +1,39 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { setRegiaoSelecionada } from '~/store/filtro'
 import { getCurrentWindowTimestampString } from '~/store/timestamp'
 import { APP_CONFIG } from '~/config/app-config'
-import registros from '~/data/registros.json'
+import { useRegistrosVelocidade } from '~/composables/useRegistrosVelocidade'
+import { fetchRegioes } from '~/services/regiao-api'
 
 type SelectItem = { label: string; value: number | null }
 
-const items = ref<SelectItem[]>([
+const { regiaoOptions } = useRegistrosVelocidade()
+const itemsFromDataset = computed<SelectItem[]>(() => regiaoOptions.value.length ? regiaoOptions.value : [
   { label: 'Todas as regiões', value: null }
 ])
-
+const items = ref<SelectItem[]>([{ label: 'Todas as regiões', value: null }])
 const value = ref<number | null>(null)
 
-onMounted(() => {
+onMounted(async () => {
   try {
-    const ids = Array.from(new Set((registros as any[]).map(r => Number(r.regiaoId ?? r.regiao)).filter(v => !Number.isNaN(v)))) as number[]
-    ids.sort((a, b) => a - b)
-    const options = ids.map(id => ({ label: `Região ${id}`, value: id }))
-    items.value = [{ label: 'Todas as regiões', value: null }, ...options]
+    const regioes = await fetchRegioes()
+    if (regioes?.length) {
+      const options = regioes
+        .map(r => ({ label: r.nome || `Região ${r.regiaoId}`, value: r.regiaoId }))
+        .sort((a, b) => (a.value ?? 0) - (b.value ?? 0))
+      items.value = [{ label: 'Todas as regiões', value: null }, ...options]
+      return
+    }
   } catch (e) {
-    console.error('Erro ao carregar regiões:', e)
+    console.error('Erro ao carregar regiões', e)
+  }
+  items.value = itemsFromDataset.value
+})
+
+watch(itemsFromDataset, (opts) => {
+  if (items.value.length <= 1) {
+    items.value = opts
   }
 })
 
@@ -36,5 +49,9 @@ watch(value, (newVal) => {
 </script>
 
 <template>
-  <USelect v-model="value" :items="items" placeholder="Região" />
+  <USelect
+    v-model="value"
+    :items="items"
+    placeholder="Região"
+  />
 </template>

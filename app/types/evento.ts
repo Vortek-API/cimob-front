@@ -1,20 +1,18 @@
-import type { Indicador } from "./indicador";
-import type { Usuario } from "./usuario";
+import type { RegiaoResponse } from "./regiao";
 
 export interface Evento {
   eventoId: number;
   nome: string;
-  data: Date;
   descricao: string;
-  usuario: Usuario;
-  indicadores: Indicador[];
+  dataInicio: Date;
+  dataFim: Date;
+  regioes: RegiaoResponse[];
 }
 
 export interface EventoRequest {
-  eventoId: number;
   nome: string;
-  data: Date;
   descricao: string;
-  usuario: number;
-  indicadores: number[];
+  dataInicio: Date;
+  dataFim: Date;
+  regioesIds: number[];
 }
