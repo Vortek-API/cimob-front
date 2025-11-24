@@ -145,6 +145,8 @@ import type { Radar } from '~/types/radar'
 import { fetchPontos } from '~/services/ponto-api'
 import type { Ponto } from '~/types/ponto'
 import { fetchIndicadoresPorRadar } from '~/services/radar-api'
+import { listarEventos } from '~/services/evento-api'
+import type { Evento } from '~/types/evento'
 import type { IndicadorRadar } from '~/types/radar'
 import { Popup } from '@maptiler/sdk'
 import { indicadoresRadar } from '~/store/indicadores'
@@ -163,7 +165,7 @@ const loadingMessage = ref('Inicializando mapa...')
 
 // Layer Visibility
 const showRadars = ref(true)
-const showPontos = ref(false)
+const showPontos = ref(true)
 
 // Data Counts
 const radarCount = ref(0)
@@ -176,9 +178,13 @@ const radarIndicators = ref<IndicadorRadar[]>([])
 const isFetchingIndicators = ref(false)
 
 const radarGeojson = ref<FeatureCollection<Point, GeoJsonProperties> | null>(null)
+const activeEventRegions = ref<Set<number>>(new Set())
 
 // CORREÇÃO: Função auxiliar para obter o nome do ícone (necessária para o watch)
-function getIconNameFromValor(valor: number | null): string {
+function getIconNameFromValor(valor: number | null, regiaoId: number): string {
+  // Se há evento ativo na região, usa ícone roxo
+  if (activeEventRegions.value.has(regiaoId)) return 'radar-icon-purple'
+  
   if (valor === null || isNaN(valor)) return 'radar-icon'
   if (valor >= 2.5) return 'radar-icon-red'
   if (valor >= 1.9) return 'radar-icon-orange'
@@ -251,6 +257,34 @@ async function loadMapIcons(icons: { path: string; name: string }[]): Promise<vo
   }
 }
 
+async function loadActiveEvents() {
+  try {
+    const eventos: Evento[] = await listarEventos()
+    const now = new Date()
+    
+    // Limpa o set de regiões ativas
+    activeEventRegions.value.clear()
+    
+    // Verifica quais eventos estão ativos agora
+    eventos.forEach(evento => {
+      const dataInicio = new Date(evento.dataInicio)
+      const dataFim = new Date(evento.dataFim)
+      
+      // Se o evento está ativo (entre data de início e fim)
+      if (now >= dataInicio && now <= dataFim) {
+        // Adiciona todas as regiões deste evento ao set
+        evento.regioes.forEach(regiao => {
+          activeEventRegions.value.add(regiao.regiaoId)
+        })
+      }
+    })
+    
+    console.log('Regiões com eventos ativos:', Array.from(activeEventRegions.value))
+  } catch (error) {
+    console.error('Erro ao carregar eventos ativos:', error)
+  }
+}
+
 
 async function loadMapData() {
   if (!map.value) return
@@ -268,6 +302,7 @@ async function loadMapData() {
     },
     properties: {
       id: r.radarId,
+      regiaoId: r.regiaoId,
       nome: r.endereco,
       icon: 'radar-icon' // Ícone padrão, será atualizado pelo watcher
     }
@@ -278,10 +313,15 @@ async function loadMapData() {
     features: radarFeatures
   }
 
+  // Carrega eventos ativos
+  await loadActiveEvents()
+
   // Adiciona camada de radares
   addRegionLayers()
   addRadarLayers(radarGeojson.value)
-
+  const pontos = await fetchPontos()
+        pontoCount.value = pontos.length
+        addPontoLayers(pontos)
 
   // Adiciona listeners de click para radares
   map.value.on('click', 'radars-layer', async (e) => {
@@ -353,7 +393,7 @@ function addRadarLayers(geojson: FeatureCollection<Point, GeoJsonProperties>) {
   }
 }
 
-function addPontoLayers(pontos: Ponto[]) {
+async function addPontoLayers(pontos: Ponto[]) {
   if (!map.value) return
 
   const pontoGeojson: FeatureCollection<Point, GeoJsonProperties> = {
@@ -378,23 +418,26 @@ function addPontoLayers(pontos: Ponto[]) {
     })
   }
 
+  // Carrega a imagem do ícone de forma assíncrona
+  if (!map.value.hasImage('bus-icon')) {
+    const image = await map.value.loadImage('/images/bus-icon.png')
+    map.value.addImage('bus-icon', image.data!)
+  }
+
   if (!map.value.getLayer('pontos-layer')) {
     map.value.addLayer({
       id: 'pontos-layer',
-      type: 'circle',
+      type: 'symbol',
       source: 'pontos',
-      paint: {
-        'circle-color': '#4CAF50', // Green
-        'circle-radius': 6,
-        'circle-stroke-width': 1,
-        'circle-stroke-color': '#fff'
-      },
       layout: {
+        'icon-image': 'bus-icon',
+        'icon-size': 0.5,
         'visibility': showPontos.value ? 'visible' : 'none'
       }
     })
   }
 }
+
 
 function addRegionLayers() {
   if (!map.value) return
@@ -488,6 +531,7 @@ function updateRadarIcons() {
     ...radarGeojson.value,
     features: radarGeojson.value.features.map(f => {
       const radarId = f.properties?.id
+      const regiaoId = f.properties?.regiaoId
       const related = indicadoresRadar.value.filter(i => i.radarId === radarId)
 
       let maxValor: number | null = null
@@ -499,7 +543,7 @@ function updateRadarIcons() {
         }, null)
       }
 
-      const iconName = getIconNameFromValor(maxValor)
+      const iconName = getIconNameFromValor(maxValor, regiaoId)
       f.properties = { ...f.properties, icon: iconName }
       return f
     })
@@ -558,7 +602,8 @@ onMounted(async () => {
           { path: '/images/radar-icon.png', name: 'radar-icon' },
           { path: '/images/radar-icon-green.png', name: 'radar-icon-green' },
           { path: '/images/radar-icon-orange.png', name: 'radar-icon-orange' },
-          { path: '/images/radar-icon-red.png', name: 'radar-icon-red' }
+          { path: '/images/radar-icon-red.png', name: 'radar-icon-red' },
+          { path: '/images/radar-icon-purple.png', name: 'radar-icon-purple' }
         ]
         await loadMapIcons(radarIcons)
 
@@ -580,7 +625,26 @@ onMounted(async () => {
 
 onUnmounted(() => {
   map.value?.remove()
+  // Limpa o intervalo de verificação de eventos
+  if (eventCheckInterval) {
+    clearInterval(eventCheckInterval)
+  }
 })
+
+// Intervalo para verificar eventos ativos a cada minuto
+let eventCheckInterval: NodeJS.Timeout | null = null
+
+// Inicia verificação periódica de eventos após o mapa carregar
+watch(mapLoaded, (loaded) => {
+  if (loaded && !eventCheckInterval) {
+    // Verifica eventos a cada 60 segundos
+    eventCheckInterval = setInterval(async () => {
+      await loadActiveEvents()
+      updateRadarIcons()
+    }, 60000)
+  }
+})
+
 
 // Watcher para atualização dos ícones dos radares (baseado no store de indicadores)
 watch(indicadoresRadar, updateRadarIcons, { deep: true })
@@ -597,6 +661,9 @@ watch(showPontos, (visible) => {
     map.value.setLayoutProperty('pontos-layer', 'visibility', visible ? 'visible' : 'none')
   }
 })
+
+// Watcher para eventos ativos (atualiza ícones quando eventos mudam)
+watch(activeEventRegions, updateRadarIcons, { deep: true })
 
 // CORREÇÃO: Adicionado defineExpose para expor a função retryLoadMap usada no template
 defineExpose({
