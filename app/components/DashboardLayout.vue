@@ -1,9 +1,9 @@
 <template>
   <div class="flex bg-gray-100">
     <main class="flex-1 bg-gray-100 p-6">
-      <div class="mx-auto">
+      <div class="max-w-6xl mx-auto">
         <div
-          class="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[520px_1fr] xl:grid-cols-[620px_1fr] gap-8 items-start"
+          class="grid grid-cols-1 md:grid-cols-[320px_1fr] lg:grid-cols-[320px_1fr] xl:grid-cols-[620px_1fr] gap-8 items-start"
         >
           <!-- Coluna 1: Mapa Interativo (320px) -->
           <div class="w-full max-w-[860px]">
@@ -50,6 +50,7 @@
   import { useAuthStore } from "~/store/authStore";
   import MenuRegiao from "~/components/MenuRegiao.vue";
   import ComponenteIndicadores from "~/components/ComponenteIndicadores.vue";
+  import Sidebar from "~/components/Sidebar.vue"; // Mantido para consistência, embora não usado no template
   import RegionMap from "~/components/RegionMap.vue";
 
   const isModalAberto = ref(false);

@@ -202,7 +202,7 @@ onMounted(async () => {
         mapLoaded.value = true
       } catch (err) {
         console.error('Erro ao carregar camadas do mapa:', err)
-        // errorMsg.value = err instanceof Error ? err.message : 'Erro desconhecido ao carregar dados do mapa'
+        errorMsg.value = err instanceof Error ? err.message : 'Erro desconhecido ao carregar dados do mapa'
         isLoading.value = false
       }
     })
