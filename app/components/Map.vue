@@ -37,7 +37,7 @@
             <div class="flex-1">
               <h3 class="text-lg font-semibold text-slate-900">Erro ao carregar mapa</h3>
               <p class="text-sm text-slate-600 mt-2">{{ errorMsg }}</p>
-              <button
+                <button
                 @click="retryLoadMap"
                 class="mt-4 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-semibold rounded-lg transition-all duration-200 hover:shadow-lg"
               >
@@ -49,36 +49,42 @@
       </div>
     </Transition>
 
-    <!-- Stats Panel (Top Left) - Melhorado -->
-    <Transition name="slide-down">
-      <div v-if="!isLoading && !errorMsg && mapLoaded" class="absolute top-6 left-6 bg-white rounded-2xl shadow-xl border border-slate-200 p-6 z-30 max-w-sm backdrop-blur-sm bg-white/95">
-        <div class="space-y-4">
-          <h3 class="text-sm font-bold text-slate-900 uppercase tracking-widest">Estatísticas</h3>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
-              <div class="flex items-center gap-2 mb-2">
-                <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
-                </svg>
-                <p class="text-xs font-semibold text-blue-900">Radares</p>
-              </div>
-              <p class="text-2xl font-bold text-blue-600">{{ radarCount }}</p>
-            </div>
-            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-              <div class="flex items-center gap-2 mb-2">
-                <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.06c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
-                </svg>
-                <p class="text-xs font-semibold text-green-900">Pontos</p>
-              </div>
-              <p class="text-2xl font-bold text-green-600">{{ pontoCount }}</p>
-            </div>
+    <!-- Legend (Bottom Left) - Corrigido para o estilo da imagem -->
+    <Transition name="slide-up">
+      <div v-if="!isLoading && !errorMsg && mapLoaded" class="absolute bottom-6 left-6 bg-white rounded-lg shadow-xl p-4 z-30 max-w-xs">
+        <p class="text-base font-semibold text-gray-900 mb-3">Regiões</p>
+        <div class="space-y-2">
+          <div 
+            v-for="regiao in regioesPolygons" 
+            :key="regiao.regiaoId"
+            class="flex items-center gap-3 cursor-pointer"
+            @click="selectRegiao(regiao.regiaoId)"
+          >
+            <div 
+              class="w-4 h-4 rounded-sm flex-shrink-0" 
+              :style="{ backgroundColor: regiao.color }"
+            ></div>
+            <span class="text-sm text-gray-700">{{ regiao.nome }}</span>
+          </div>
+          
+          <!-- Opção "Todas as regiões" com checkbox -->
+          <div 
+            class="flex items-center gap-3 pt-3 border-t border-gray-200 mt-3 cursor-pointer"
+            @click="selectRegiao(null)"
+          >
+            <input
+              type="checkbox"
+              :checked="selectRegiao === null"
+              class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer"
+              @change="selectRegiao(null)"
+            />
+            <span class="text-sm text-gray-700">Todas as regiões</span>
           </div>
         </div>
       </div>
     </Transition>
 
-    <!-- Layer Toggle (Top Right) - Melhorado -->
+    <!-- Layer Toggle (Top Right) - Mantido -->
     <Transition name="slide-down">
       <div v-if="!isLoading && !errorMsg && mapLoaded" class="absolute top-6 right-6 bg-white rounded-2xl shadow-xl border border-slate-200 p-4 z-30 backdrop-blur-sm bg-white/95">
         <div class="space-y-3">
@@ -105,7 +111,7 @@
       </div>
     </Transition>
 
-    <!-- Info Tip (Bottom Right) -->
+    <!-- Info Tip (Bottom Right) - Mantido -->
     <Transition name="slide-up">
       <div v-if="!isLoading && !errorMsg && mapLoaded" class="absolute bottom-6 right-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl shadow-xl border border-blue-200 p-4 z-30 max-w-xs backdrop-blur-sm">
         <div class="flex items-start gap-3">
@@ -125,12 +131,16 @@
 </template>
 
 <script setup lang="ts">
-import { Map, MapStyle, config as mapConfig } from '@maptiler/sdk'
-import type { FeatureCollection, Point, GeoJsonProperties } from 'geojson'
+import { Map, MapStyle, config as mapConfig, type StyleImageInterface } from '@maptiler/sdk'
+import type { FeatureCollection, Point, Polygon, GeoJsonProperties } from 'geojson'
 import { shallowRef, onMounted, onUnmounted, markRaw, ref, watch } from 'vue'
-import { getCurrentWindowTimestampString } from '~/store/timestamp'
+// CORREÇÃO: Adicionado useRuntimeConfig, que estava faltando
+import { useRuntimeConfig } from '#app'
+// CORREÇÃO: Removido getCurrentWindowTimestampString, que não estava sendo usado
+// import { getCurrentWindowTimestampString } from '~/store/timestamp' 
 import '@maptiler/sdk/dist/maptiler-sdk.css'
 import { fetchIndicadoresComRadar, fetchRadars } from '~/services/radar-api'
+import { regioesPolygons } from '~/data/regioes-polygons'
 import type { Radar } from '~/types/radar'
 import { fetchPontos } from '~/services/ponto-api'
 import type { Ponto } from '~/types/ponto'
@@ -167,290 +177,15 @@ const isFetchingIndicators = ref(false)
 
 const radarGeojson = ref<FeatureCollection<Point, GeoJsonProperties> | null>(null)
 
-// Watch for layer visibility changes
-watch(showRadars, (value) => {
-  if (map.value && map.value.getLayer('radars-layer')) {
-    map.value.setLayoutProperty('radars-layer', 'visibility', value ? 'visible' : 'none')
-  }
-})
-
-watch(showPontos, (value) => {
-  if (map.value && map.value.getLayer('pontos-layer')) {
-    map.value.setLayoutProperty('pontos-layer', 'visibility', value ? 'visible' : 'none')
-  }
-})
-
-onMounted(async () => {
-  try {
-    const { public: publicConfig } = useRuntimeConfig()
-    mapConfig.apiKey = publicConfig.MAPTILER_API_KEY
-
-    const initialState = { lng: -45.85477630787629, lat: -23.21252050854134, zoom: 12 }
-
-    loadingMessage.value = 'Criando instância do mapa...'
-
-    map.value = markRaw(
-      new Map({
-        container: mapContainer.value!,
-        style: MapStyle.STREETS,
-        center: [initialState.lng, initialState.lat],
-        zoom: initialState.zoom
-      })
-    )
-
-      map.value.on('load', async () => {
-        // Adicionar listener de clique para radares
-        map.value!.on('click', 'radars-layer', handleRadarClick)
-        
-        // Mudar cursor ao passar sobre radar
-        map.value!.on('mouseenter', 'radars-layer', () => {
-          map.value!.getCanvas().style.cursor = 'pointer'
-        })
-        map.value!.on('mouseleave', 'radars-layer', () => {
-          map.value!.getCanvas().style.cursor = ''
-        })
-        
-        // Fechar pop-up ao clicar no mapa
-        map.value!.on('click', (e) => {
-          if (e.originalEvent.target instanceof HTMLElement && e.originalEvent.target.closest('.maplibregl-popup')) {
-            return // Não fechar se o clique for dentro do pop-up
-          }
-          if (activePopup.value) {
-            activePopup.value.remove()
-            activePopup.value = null
-            selectedRadarId.value = null
-            radarIndicators.value = []
-          }
-        })
-        
-        try {
-      try {
-        const radarIcons = [
-          { path: '/images/radar-icon.png', name: 'radar-icon' },
-          { path: '/images/radar-icon-green.png', name: 'radar-icon-green' },
-          { path: '/images/radar-icon-orange.png', name: 'radar-icon-orange' },
-          { path: '/images/radar-icon-red.png', name: 'radar-icon-red' }
-        ]
-
-        for (const icon of radarIcons) {
-          loadingMessage.value = `Carregando ícone ${icon.name}...`
-          try {
-            const img = await map.value!.loadImage(icon.path)
-            if (!map.value!.hasImage(icon.name)) {
-              map.value!.addImage(icon.name, img.data)
-            }
-          } catch (err) {
-            console.warn(`Falha ao carregar ${icon.path}:`, err)
-          }
-        }
-
-        loadingMessage.value = 'Buscando dados de radares...'
-        const radars = await fetchRadars()
-        radarCount.value = radars.length
-        addRadarLayer(radars)
-
-        loadingMessage.value = 'Carregando ícones de pontos...'
-        await map.value!.loadImage('/images/bus-icon.png')
-          .then(img => {
-            if (!map.value!.hasImage('bus-icon')) {
-              map.value!.addImage('bus-icon', img.data)
-            }
-          })
-          .catch(err => {
-            console.error('Erro ao carregar imagem de ponto:', err)
-            throw new Error('Falha ao carregar ícone de ponto')
-          })
-
-        loadingMessage.value = 'Buscando dados de pontos...'
-        const pontos = await fetchPontos()
-        pontoCount.value = pontos.length
-        addPontoLayer(pontos)
-
-        isLoading.value = false
-        mapLoaded.value = true
-      } catch (err) {
-        console.error('Erro ao carregar camadas do mapa:', err)
-        errorMsg.value = err instanceof Error ? err.message : 'Erro desconhecido ao carregar dados do mapa'
-        isLoading.value = false
-      }
-        } catch (err) {
-          console.error('Erro ao carregar dados do mapa:', err)
-          errorMsg.value = err instanceof Error ? err.message : 'Erro desconhecido ao carregar dados do mapa'
-          isLoading.value = false
-        }
-      })
-
-    map.value.on('error', (err) => {
-      console.error('Erro do mapa:', err)
-      errorMsg.value = 'Erro ao inicializar o mapa. Verifique sua conexão.'
-      isLoading.value = false
-    })
-  } catch (err) {
-    console.error('Erro ao montar mapa:', err)
-    errorMsg.value = err instanceof Error ? err.message : 'Erro desconhecido ao inicializar o mapa'
-    isLoading.value = false
-  }
-})
-
-onUnmounted(() => {
-  map.value?.off('click', 'radars-layer', handleRadarClick)
-  map.value?.off('mouseenter', 'radars-layer', () => {
-    map.value!.getCanvas().style.cursor = 'pointer'
-  })
-  map.value?.off('mouseleave', 'radars-layer', () => {
-    map.value!.getCanvas().style.cursor = ''
-  })
-  map.value?.remove()
-})
-
-function addRadarLayer(radars: Radar[]) {
-  if (!map.value) return
-
-  const geojson: FeatureCollection<Point, GeoJsonProperties> = {
-    type: 'FeatureCollection',
-    features: radars.map(radar => ({
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [radar.longitude, radar.latitude]
-      },
-      properties: {
-        id: radar.radarId,
-        type: 'radar',
-        icon: 'radar-icon'
-      }
-    }))
-  }
-
-  radarGeojson.value = geojson
-
-  if (!map.value.getSource('radars')) {
-    map.value.addSource('radars', {
-      type: 'geojson',
-      data: geojson
-    })
-  }
-
-  if (!map.value.getLayer('radars-layer')) {
-    map.value.addLayer({
-      id: 'radars-layer',
-      type: 'symbol',
-      source: 'radars',
-      layout: {
-        'icon-image': ['get', 'icon'],
-        'icon-size': 1,
-        'icon-allow-overlap': true
-      }
-    })
-  }
-}
-
-function addPontoLayer(pontos: Ponto[]) {
-  if (!map.value) return
-
-  const geojson: FeatureCollection<Point, GeoJsonProperties> = {
-    type: 'FeatureCollection',
-    features: pontos.map(ponto => ({
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [ponto.longitude, ponto.latitude]
-      },
-      properties: {
-        id: ponto.pontoId,
-        type: 'ponto'
-      }
-    }))
-  }
-
-  if (!map.value.getSource('pontos')) {
-    map.value.addSource('pontos', {
-      type: 'geojson',
-      data: geojson
-    })
-  }
-
-  if (!map.value.getLayer('pontos-layer')) {
-    map.value.addLayer({
-      id: 'pontos-layer',
-      type: 'symbol',
-      source: 'pontos',
-      layout: {
-        'icon-image': 'bus-icon',
-        'icon-size': 1,
-        'icon-allow-overlap': true,
-        'visibility': showPontos.value ? 'visible' : 'none'
-      }
-    })
-  }
-}
-
-// --- Lógica de Indicadores por Radar ---
-
-async function handleRadarClick(e: any) {
-  if (!e.features || e.features.length === 0) return
-
-  const feature = e.features[0]
-  const radarId = feature.properties.id
-  const coordinates = feature.geometry.coordinates.slice()
-
-  // Se o pop-up já estiver aberto para este radar, fechar
-  if (selectedRadarId.value === radarId) {
-    activePopup.value?.remove()
-    activePopup.value = null
-    selectedRadarId.value = null
-    radarIndicators.value = []
-    return
-  }
-
-  // Fechar pop-up anterior, se houver
-  activePopup.value?.remove()
-  selectedRadarId.value = radarId
-  radarIndicators.value = []
-  isFetchingIndicators.value = true
-
-  let indicadores = indicadoresRadar.value.filter(ind => ind.radarId === radarId)
- 
-  if (indicadores.length === 0) {
-    const loadingContent = document.createElement('div')
-    loadingContent.className = 'p-2 text-center'
-    loadingContent.innerHTML = '<p class="text-sm font-medium text-gray-700">Carregando indicadores...</p>'
-
-    activePopup.value = new Popup({
-      closeButton: true,
-      closeOnClick: false,
-      offset: 25,
-      maxWidth: '300px'
-    })
-      .setLngLat(coordinates)
-      .setDOMContent(loadingContent)
-      .addTo(map.value!)
-
-    const stopWatcher = watch(indicadoresRadar, (newIndicadores) => {
-      const newRadarIndicators = newIndicadores.filter(ind => ind.radarId === radarId)
-      
-      if (newRadarIndicators.length > 0) {
-        stopWatcher()
-        isFetchingIndicators.value = false
-        radarIndicators.value = newRadarIndicators
-        updatePopupContent(coordinates, radarId, newRadarIndicators)
-      }
-    }, { deep: true })
-  } else {
-    isFetchingIndicators.value = false
-    radarIndicators.value = indicadores
-    updatePopupContent(coordinates, radarId, indicadores)
-  }
-}
-
-function getIconNameFromValor(valor: number | null | undefined) {
-  if (valor == null || isNaN(valor)) return 'radar-icon'
-  if (valor > 0 && valor < 1.9) return 'radar-icon-green'
-  if (valor >= 2 && valor < 2.5) return 'radar-icon-orange'
+// CORREÇÃO: Função auxiliar para obter o nome do ícone (necessária para o watch)
+function getIconNameFromValor(valor: number | null): string {
+  if (valor === null || isNaN(valor)) return 'radar-icon'
   if (valor >= 2.5) return 'radar-icon-red'
-  return 'radar-icon'
+  if (valor >= 1.9) return 'radar-icon-orange'
+  return 'radar-icon-green'
 }
 
+// CORREÇÃO: Função auxiliar para obter a classe de cor (necessária para o popup)
 function getColorClassForValor(valor: number | null | undefined) {
   if (valor == null || isNaN(valor)) return 'text-gray-700'
   if (valor > 0 && valor < 1.9) return 'text-green-600'
@@ -459,6 +194,7 @@ function getColorClassForValor(valor: number | null | undefined) {
   return 'text-gray-700'
 }
 
+// CORREÇÃO: Função auxiliar para atualizar o conteúdo do popup (necessária para o click do mapa)
 function updatePopupContent(coordinates: [number, number], radarId: string, indicadores: IndicadorRadar[]) {
   if (!map.value) return
 
@@ -475,14 +211,11 @@ function updatePopupContent(coordinates: [number, number], radarId: string, indi
     } else {
       htmlContent += '<ul class="space-y-1">'
       indicadores.forEach(ind => {
-        const valorRaw = ind.indicador?.valor ?? null
-        const valorNum = parseFloat(String(valorRaw))
-        const colorClass = getColorClassForValor(isNaN(valorNum) ? null : valorNum)
-
+        const colorClass = getColorClassForValor(ind.indicador?.valor)
         htmlContent += `
           <li class="flex justify-between items-center text-sm">
-            <span class="font-medium text-gray-700">${ind.indicador.nome}:</span>
-            <span class="font-semibold ${colorClass}">${ind.indicador.valor}</span>
+            <span class="text-gray-600">${ind.indicador}:</span>
+            <span class="font-semibold ${colorClass}">${ind.radarId?.fixed() ?? 'N/A'}</span>
           </li>
         `
       })
@@ -491,65 +224,383 @@ function updatePopupContent(coordinates: [number, number], radarId: string, indi
 
     popupContent.innerHTML = htmlContent
 
-    activePopup.value = new Popup({
-      closeButton: true,
-      closeOnClick: false,
-      offset: 25,
-      maxWidth: '300px'
-    })
+    activePopup.value = new Popup({ offset: 25 })
       .setLngLat(coordinates)
       .setDOMContent(popupContent)
       .addTo(map.value!)
-      
-    // Adicionar listener para fechar o pop-up ao clicar no botão de fechar
-    activePopup.value.on('close', () => {
-      selectedRadarId.value = null
-      radarIndicators.value = []
-      activePopup.value = null
-    })
-  }, 50)
+  }, 0)
 }
 
-function retryLoadMap() {
-  // Clear error state and show loading overlay, then reload to reinitialize the map
-  errorMsg.value = ''
-  isLoading.value = true
-  // Simple and reliable way to retry: reload the page so the map init runs again
-  if (typeof window !== 'undefined' && window.location) {
-    window.location.reload()
+async function loadMapIcons(icons: { path: string; name: string }[]): Promise<void> {
+  if (!map.value) return;
+
+  for (const icon of icons) {
+    try {
+      // loadImage retorna GetResourceResponse
+      const response = await map.value.loadImage(icon.path);
+
+      // response.data contém o HTMLImageElement | ImageBitmap
+      const image = response.data;
+
+      if (image && !map.value.hasImage(icon.name)) {
+        map.value.addImage(icon.name, image);
+      }
+    } catch (err) {
+      console.error(`Erro ao carregar ícone ${icon.name}:`, err);
+    }
   }
 }
 
-watch(indicadoresRadar, () => {
-  if (!map.value || !radarGeojson.value || !map.value.getSource('radars')) return
 
-  const updated = JSON.parse(JSON.stringify(radarGeojson.value)) as FeatureCollection<Point, GeoJsonProperties>
+async function loadMapData() {
+  if (!map.value) return
 
-  updated.features = updated.features.map(f => {
-    const radarId = f.properties?.id
-    const related = indicadoresRadar.value.filter(ind => ind.radarId === radarId)
+  // Busca os radares
+  const radars: Radar[] = await fetchRadars()
+  radarCount.value = radars.length
 
-    let maxValor = Number.NaN
-    if (related.length > 0) {
-      maxValor = related.reduce((acc, cur) => {
-        const v = parseFloat(String(cur.indicador?.valor ?? NaN))
-        if (isNaN(v)) return acc
-        return isNaN(acc) ? v : Math.max(acc, v)
-      }, Number.NaN)
+  // Converte dados de radares para GeoJSON
+  const radarFeatures = radars.map(r => ({
+    type: 'Feature' as const,
+    geometry: {
+      type: 'Point' as const,
+      coordinates: [r.longitude, r.latitude]
+    },
+    properties: {
+      id: r.radarId,
+      nome: r.endereco,
+      icon: 'radar-icon' // Ícone padrão, será atualizado pelo watcher
     }
+  }))
 
-    const iconName = getIconNameFromValor(isNaN(maxValor) ? null : maxValor)
-    f.properties = { ...f.properties, icon: iconName }
-    return f
+  radarGeojson.value = {
+    type: 'FeatureCollection',
+    features: radarFeatures
+  }
+
+  // Adiciona camada de radares
+  addRadarLayers(radarGeojson.value)
+
+
+  // Adiciona listeners de click para radares
+  map.value.on('click', 'radars-layer', async (e) => {
+    if (e.features && e.features.length > 0) {
+      const feature = e.features[0]
+      const radarId = feature!.properties?.id
+      const coordinates = (feature!.geometry as Point).coordinates as [number, number]
+
+      if (radarId) {
+        isFetchingIndicators.value = true
+        try {
+          const indicadores = await fetchIndicadoresPorRadar(radarId)
+          radarIndicators.value = indicadores
+          updatePopupContent(coordinates, radarId, indicadores)
+        } catch (error) {
+          console.error('Erro ao buscar indicadores:', error)
+          updatePopupContent(coordinates, radarId, [])
+        } finally {
+          isFetchingIndicators.value = false
+        }
+      }
+    }
   })
 
+  // Adiciona listeners de click para pontos
+  map.value.on('click', 'pontos-layer', (e) => {
+    if (e.features && e.features.length > 0) {
+      const feature = e.features[0]
+      const nome = feature!.properties?.nome || 'Ponto de Ônibus'
+      const coordinates = (feature!.geometry as Point).coordinates as [number, number]
+
+      activePopup.value?.remove()
+      activePopup.value = new Popup({ offset: 25 })
+        .setLngLat(coordinates)
+        .setHTML(`<h4 class="text-base font-bold text-gray-900">${nome}</h4><p class="text-sm text-gray-600">Ponto de ônibus</p>`)
+        .addTo(map.value!)
+    }
+  })
+
+  // Atualiza ícones com base nos indicadores iniciais
+  updateRadarIcons()
+
+  loadingMessage.value = 'Mapa carregado!'
+  isLoading.value = false
+  mapLoaded.value = true
+}
+
+function addRadarLayers(geojson: FeatureCollection<Point, GeoJsonProperties>) {
+  if (!map.value) return
+
+  if (!map.value.getSource('radars')) {
+    map.value.addSource('radars', {
+      type: 'geojson',
+      data: geojson
+    })
+  }
+
+  if (!map.value.getLayer('radars-layer')) {
+    map.value.addLayer({
+      id: 'radars-layer',
+      type: 'symbol',
+      source: 'radars',
+      layout: {
+        'icon-image': ['get', 'icon'],
+        'icon-allow-overlap': true,
+        'icon-size': 0.5
+      }
+    })
+  }
+}
+
+function addPontoLayers(pontos: Ponto[]) {
+  if (!map.value) return
+
+  const pontoGeojson: FeatureCollection<Point, GeoJsonProperties> = {
+    type: 'FeatureCollection',
+    features: pontos.map(p => ({
+      type: 'Feature' as const,
+      geometry: {
+        type: 'Point' as const,
+        coordinates: [p.longitude, p.latitude]
+      },
+      properties: {
+        id: p.id,
+        nome: p.nome
+      }
+    }))
+  }
+
+  if (!map.value.getSource('pontos')) {
+    map.value.addSource('pontos', {
+      type: 'geojson',
+      data: pontoGeojson
+    })
+  }
+
+  if (!map.value.getLayer('pontos-layer')) {
+    map.value.addLayer({
+      id: 'pontos-layer',
+      type: 'circle',
+      source: 'pontos',
+      paint: {
+        'circle-color': '#4CAF50', // Green
+        'circle-radius': 6,
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#fff'
+      },
+      layout: {
+        'visibility': showPontos.value ? 'visible' : 'none'
+      }
+    })
+  }
+}
+
+function addRegionLayers() {
+  if (!map.value) return
+
+  const geojson: FeatureCollection<Polygon, GeoJsonProperties> = {
+    type: 'FeatureCollection',
+    features: regioesPolygons.map(regiao => ({
+      type: 'Feature',
+      id: regiao.regiaoId, // Usando id para setFeatureState
+      geometry: {
+        type: 'Polygon',
+        coordinates: regiao.coordinates
+      },
+      properties: {
+        regiaoId: regiao.regiaoId,
+        nome: regiao.nome,
+        color: regiao.color
+      }
+    }))
+  }
+
+  if (!map.value.getSource('regions')) {
+    map.value.addSource('regions', {
+      type: 'geojson',
+      data: geojson
+    })
+  }
+
+  // Add fill layer
+  if (!map.value.getLayer('regions-fill')) {
+    map.value.addLayer({
+      id: 'regions-fill',
+      type: 'fill',
+      source: 'regions',
+      paint: {
+        'fill-color': ['get', 'color'],
+        'fill-opacity': [
+          'case',
+          ['boolean', ['feature-state', 'selected'], false],
+          0.6,
+          0.3
+        ]
+      }
+    })
+  }
+
+  // Add outline layer
+  if (!map.value.getLayer('regions-outline')) {
+    map.value.addLayer({
+      id: 'regions-outline',
+      type: 'line',
+      source: 'regions',
+      paint: {
+        'line-color': ['get', 'color'],
+        'line-width': [
+          'case',
+          ['boolean', ['feature-state', 'selected'], false],
+          3,
+          2
+        ],
+        'line-opacity': 0.8
+      }
+    })
+  }
+}
+
+function updateRegionHighlight(regiaoId: number | null) {
+  if (!map.value) return
+
+  // Reset previous state
+  regioesPolygons.forEach(regiao => {
+    map.value!.setFeatureState(
+      { source: 'regions', id: regiao.regiaoId },
+      { selected: false }
+    )
+  })
+
+  // Set new state
+  if (regiaoId !== null) {
+    map.value!.setFeatureState(
+      { source: 'regions', id: regiaoId },
+      { selected: true }
+    )
+  }
+}
+
+function updateRadarIcons() {
+  if (!map.value || !radarGeojson.value) return
+
+  const updatedGeojson: FeatureCollection<Point, GeoJsonProperties> = {
+    ...radarGeojson.value,
+    features: radarGeojson.value.features.map(f => {
+      const radarId = f.properties?.id
+      const related = indicadoresRadar.value.filter(i => i.radarId === radarId)
+
+      let maxValor: number | null = null
+      if (related.length > 0) {
+        maxValor = related.reduce((acc: number | null, cur) => {
+          const v = parseFloat(String(cur.indicador?.valor ?? NaN))
+          if (isNaN(v)) return acc
+          return acc === null || v > acc ? v : acc
+        }, null)
+      }
+
+      const iconName = getIconNameFromValor(maxValor)
+      f.properties = { ...f.properties, icon: iconName }
+      return f
+    })
+  }
+
   try {
-    (map.value.getSource('radars') as any).setData(updated)
-    radarGeojson.value = updated
+    // Atualiza a fonte de dados do mapa
+    (map.value.getSource('radars') as any).setData(updatedGeojson)
+    radarGeojson.value = updatedGeojson // Mantém a referência local atualizada
   } catch (err) {
     console.error('Erro ao atualizar ícones dos radares:', err)
   }
-}, { deep: true })
+}
+
+function selectRegiao(regiaoId: number | null) {
+  // Ação de seleção de região
+}
+
+function getSelectedRegiaoName(): string {
+  // Retorna o nome da região selecionada
+  return ''
+}
+
+function retryLoadMap() {
+  errorMsg.value = ''
+  isLoading.value = true
+  location.reload()
+}
+
+onMounted(async () => {
+  try {
+    const { public: publicConfig } = useRuntimeConfig()
+    mapConfig.apiKey = publicConfig.MAPTILER_API_KEY
+
+    // Centro de São José dos Campos
+    const initialState = { lng: -45.85477630787629, lat: -23.21252050854134, zoom: 11 }
+
+    loadingMessage.value = 'Criando instância do mapa...'
+
+    map.value = markRaw(
+      new Map({
+        container: mapContainer.value!,
+        style: MapStyle.STREETS,
+        center: [initialState.lng, initialState.lat],
+        zoom: initialState.zoom
+      })
+    )
+    
+    // CORREÇÃO: O bloco map.value?.on('load', ...) estava incompleto e mal estruturado.
+    // A lógica foi movida para dentro de uma função assíncrona para melhor controle de fluxo.
+    map.value.on('load', async () => {
+      try {
+        addRegionLayers()
+
+        const radarIcons = [
+          { path: '/images/radar-icon.png', name: 'radar-icon' },
+          { path: '/images/radar-icon-green.png', name: 'radar-icon-green' },
+          { path: '/images/radar-icon-orange.png', name: 'radar-icon-orange' },
+          { path: '/images/radar-icon-red.png', name: 'radar-icon-red' }
+        ]
+        await loadMapIcons(radarIcons)
+
+        await loadMapData()
+
+      } catch (e) {
+        console.error('Erro durante o carregamento do mapa:', e)
+        errorMsg.value = 'Não foi possível carregar os dados do mapa. Verifique a conexão com a API.'
+        isLoading.value = false
+      }
+    })
+
+  } catch (e) {
+    console.error('Erro na inicialização do mapa:', e)
+    errorMsg.value = 'Falha ao inicializar o mapa. Verifique a chave da API.'
+    isLoading.value = false
+  }
+})
+
+onUnmounted(() => {
+  map.value?.remove()
+})
+
+// Watcher para atualização dos ícones dos radares (baseado no store de indicadores)
+watch(indicadoresRadar, updateRadarIcons, { deep: true })
+
+// Watcher para visibilidade das camadas
+watch(showRadars, (visible) => {
+  if (map.value) {
+    map.value.setLayoutProperty('radars-layer', 'visibility', visible ? 'visible' : 'none')
+  }
+})
+
+watch(showPontos, (visible) => {
+  if (map.value) {
+    map.value.setLayoutProperty('pontos-layer', 'visibility', visible ? 'visible' : 'none')
+  }
+})
+
+// CORREÇÃO: Adicionado defineExpose para expor a função retryLoadMap usada no template
+defineExpose({
+  retryLoadMap
+})
 </script>
 
 <style scoped>

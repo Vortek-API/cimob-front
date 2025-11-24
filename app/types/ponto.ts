@@ -1,4 +1,6 @@
 export interface Ponto {
+  id: any;
+  nome: any;
   pontoId: number;
   regiaoId: number | null;
   latitude: number;
