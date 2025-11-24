@@ -2,62 +2,35 @@
 import { ref, shallowRef, computed, watch } from 'vue'
 import { sub } from 'date-fns'
 import type { Period, Range } from '../../types'
-import VeiculosDateRangePicker from '~/components/veiculos/VeiculosDateRangePicker.vue'
-import VeiculosPeriodSelect from '~/components/veiculos/VeiculosPeriodSelect.vue'
+import { useDashboard } from '../../composables/useDashboard'
 import VeiculosStats from '~/components/veiculos/VeiculosStats.vue'
 import VeiculosChart from '~/components/veiculos/VeiculosChart.vue'
-import registros from '~/data/registros.json'
 import { regiaoSelecionada, setRegiaoSelecionada } from '~/store/filtro'
+import { useRegistrosVelocidade } from '~/composables/useRegistrosVelocidade'
 const { selectedRadar } = useDashboard()
+const { registros, fetchRegistros, loading, cancelarBusca } = useRegistrosVelocidade()
+const toast = useToast()
 
 const range = shallowRef<Range>({
   start: sub(new Date(), { days: 14 }),
   end: new Date()
 })
-const period = ref<Period>('daily')
+const period: Period = 'daily'
 
 definePageMeta({
   requiresAuth: true
 })
 
-// Suporta novo modelo vindo do JSON externo
-type RegistroApi = {
-  registroVelocidadeId?: string
-  radarId?: string
-  regiaoId?: string
-  tipoVeiculo?: string
-  velocidade?: string | number
-  velocidadePermitida?: string | number
-  data?: string | Date
-  deletado?: string
-}
-type Registro = { data: string; tipoVeiculo: string; velocidade: number; radar: string; regiao: number }
-
-function parseBrDateToISO(d: string | Date | undefined): string {
-  if (!d) return new Date().toISOString().slice(0, 10)
-  if (d instanceof Date) return new Date(d.getFullYear(), d.getMonth(), d.getDate()).toISOString().slice(0, 10)
-  // esperado: dd/MM/yy
-  const parts = d.split('/')
-  if (parts.length === 3) {
-    const [dd, mm, yy] = parts
-    const day = Number(dd)
-    const mon = Number(mm) - 1
-    const year = 2000 + Number(yy)
-    const dt = new Date(year, mon, day)
-    return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).toISOString().slice(0, 10)
+async function pesquisar() {
+  await fetchRegistros(range.value, selectedRadar.value, regiaoSelecionada.value)
+  if (registros.value.length === 0) {
+    toast.add({
+      title: 'Valores não encontrados',
+      description: 'Nenhum registro foi retornado para os filtros atuais.',
+      icon: 'i-lucide-info'
+    })
   }
-  // fallback: tentar Date
-  const dt = new Date(d)
-  return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).toISOString().slice(0, 10)
 }
-
-const all: Registro[] = (registros as unknown as RegistroApi[]).map(r => ({
-  data: parseBrDateToISO(r.data),
-  tipoVeiculo: String(r.tipoVeiculo ?? ''),
-  velocidade: Number(r.velocidade ?? 0),
-  radar: String(r.radarId ?? (r as any).radar ?? ''),
-  regiao: Number(r.regiaoId ?? (r as any).regiao ?? 0)
-}))
 
 // Exclusividade entre região e radar
 watch(() => regiaoSelecionada.value, (v) => {
@@ -68,21 +41,17 @@ watch(() => selectedRadar.value, (v) => {
 })
 
 const filtered = computed(() => {
-  const s = range.value.start
-  const e = range.value.end
-  // Normaliza limites para incluir o dia inteiro
-  const start = new Date(s.getFullYear(), s.getMonth(), s.getDate(), 0, 0, 0)
-  const end = new Date(e.getFullYear(), e.getMonth(), e.getDate(), 23, 59, 59, 999)
   const regionId = regiaoSelecionada.value
   const radarId = selectedRadar.value
-  return all.filter(r => {
-    const d = new Date(r.data)
-    if (d < start || d > end) return false
+  return registros.value.filter(r => {
     if (regionId != null && r.regiao !== regionId) return false
-    if (radarId && r.radar !== radarId) return false
+    if (radarId && radarId !== 'all' && r.radar !== radarId) return false
     return true
   })
 })
+
+const radarDisabled = computed(() => regiaoSelecionada.value != null)
+const regiaoDisabled = computed(() => selectedRadar.value != null && selectedRadar.value !== 'all')
 </script>
 
 <template>
@@ -97,19 +66,43 @@ const filtered = computed(() => {
           <div>
             <UDashboardToolbar>
               <template #left>
-                <VeiculosDateRangePicker v-model="range" />
-                <FiltersRegionSelect />
-                <FiltersRadarSelect />
+                <div class="flex flex-wrap gap-2">
+                  <FiltersRegionSelect :disabled="regiaoDisabled" />
+                  <FiltersRadarSelect :disabled="radarDisabled" />
+                </div>
               </template>
               <template #right>
-                <div class="flex items-center border-l border-default pl-3 ml-2">
-                  <VeiculosPeriodSelect v-model="period" :range="range" />
+                <div class="flex flex-wrap items-center gap-2">
+                  <UButton
+                    color="primary"
+                    variant="solid"
+                    icon="i-lucide-search"
+                    :loading="loading"
+                    @click="pesquisar"
+                  >
+                    Pesquisar
+                  </UButton>
+                  <UButton
+                    color="gray"
+                    variant="ghost"
+                    icon="i-lucide-x"
+                    :disabled="!loading"
+                    @click="cancelarBusca"
+                  >
+                    Cancelar
+                  </UButton>
                 </div>
               </template>
             </UDashboardToolbar>
           </div>
-          <VeiculosStats :period="period" :range="range" :dataset="filtered" />
-          <VeiculosChart :period="period" :range="range" :dataset="filtered" />
+          <div v-if="loading" class="flex items-center gap-2 px-4 py-6 text-muted">
+            <UIcon name="i-lucide-loader-2" class="animate-spin h-5 w-5 text-primary" />
+            <span>Carregando registros...</span>
+          </div>
+          <template v-else>
+            <VeiculosStats :period="period" :range="range" :dataset="filtered" />
+            <VeiculosChart :period="period" :range="range" :dataset="filtered" />
+          </template>
         </template>
       </UDashboardPanel>
     </UDashboardPage>
