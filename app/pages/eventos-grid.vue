@@ -68,7 +68,11 @@
           <!-- Criar Evento Tab -->
           <div v-if="activeTab === 'criar'" key="criar" class="max-w-2xl">
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 hover:shadow-md transition-shadow duration-300">
-              <EventoExternoForm @evento-criado="onEventoCriado" />
+              <EventoExternoForm 
+                :evento-edicao="eventoEdicao"
+                @evento-criado="onEventoCriado" 
+                @cancelar-edicao="cancelarEdicao"
+              />
             </div>
           </div>
 
@@ -159,14 +163,15 @@ import Sidebar from '~/components/Sidebar.vue'
 import EventoExternoForm from '~/components/eventos/EventoExternoForm.vue'
 import EventoCard from '~/components/eventos/EventoCard.vue'
 import { listarEventosExternos, deletarEvento } from '~/services/evento-api'
-import type { EventoExterno } from '~/services/evento-api'
+import type { Evento } from '~/types/evento'
 
 definePageMeta({
   requiresAuth: true
 })
 
 const activeTab = ref('criar')
-const eventos = ref<EventoExterno[]>([])
+const eventoEdicao = ref<Evento | null>(null)
+const eventos = ref<Evento[]>([])
 const isLoading = ref(false)
 const searchQuery = ref('')
 
@@ -197,16 +202,23 @@ const loadEventos = async () => {
 const onEventoCriado = () => {
   loadEventos()
   activeTab.value = 'listar'
+  eventoEdicao.value = null
 }
 
-const viewOnMap = (evento: EventoExterno) => {
+const cancelarEdicao = () => {
+  eventoEdicao.value = null
+  activeTab.value = 'listar'
+}
+
+const viewOnMap = (evento: Evento) => {
   console.log('Ver no mapa:', evento)
   // Implementar navegação para o mapa com foco no evento
 }
 
-const editEvento = (evento: EventoExterno) => {
+const editEvento = (evento: Evento) => {
   console.log('Editar evento:', evento)
-  // Implementar edição de evento
+  eventoEdicao.value = evento
+  activeTab.value = 'criar'
 }
 
 const deleteEvento = async (eventoId: number) => {

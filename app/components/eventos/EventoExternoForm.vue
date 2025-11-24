@@ -3,51 +3,53 @@
     <!-- Título -->
     <div class="flex items-center gap-3 mb-8">
       <div class="w-1 h-6 bg-gradient-to-b from-orange-600 to-orange-400 rounded-full"></div>
-      <h2 class="text-2xl font-bold text-gray-900">Novo Evento</h2>
+      <h2 class="text-2xl font-bold text-gray-900">{{ eventoEdicao ? 'Editar Evento' : 'Novo Evento' }}</h2>
     </div>
 
     <form @submit.prevent="submitForm" class="space-y-6">
-      <!-- Nome do Evento -->
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">
-          Nome do Evento <span class="text-red-600">*</span>
-        </label>
-        <input
-          v-model="formData.nome"
-          type="text"
-          placeholder="Ex: Congestionamento na Avenida Principal"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white hover:border-gray-400"
-          required
-        />
-      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Nome do Evento -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            Nome do Evento <span class="text-red-600">*</span>
+          </label>
+          <input
+            v-model="formData.nome"
+            type="text"
+            placeholder="Ex: Congestionamento na Avenida Principal"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white hover:border-gray-400"
+            required
+          />
+        </div>
 
-      <!-- Data e Hora de Início -->
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">
-          Data e Hora de Início <span class="text-red-600">*</span>
-        </label>
-        <input
-          v-model="formData.dataInicio"
-          type="datetime-local"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white hover:border-gray-400"
-          required
-        />
-      </div>
+        <!-- Data e Hora de Início -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            Data e Hora de Início <span class="text-red-600">*</span>
+          </label>
+          <input
+            v-model="formData.dataInicio"
+            type="datetime-local"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white hover:border-gray-400"
+            required
+          />
+        </div>
 
-      <!-- Data e Hora de Fim -->
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">
-          Data e Hora de Fim <span class="text-red-600">*</span>
-        </label>
-        <input
-          v-model="formData.dataFim"
-          type="datetime-local"
-          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white hover:border-gray-400"
-          required
-        />
-        <p v-if="erroData" class="text-xs text-red-600 mt-2">
-          A data de fim não pode ser anterior à data de início.
-        </p>
+        <!-- Data e Hora de Fim -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">
+            Data e Hora de Fim <span class="text-red-600">*</span>
+          </label>
+          <input
+            v-model="formData.dataFim"
+            type="datetime-local"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all bg-white hover:border-gray-400"
+            required
+          />
+          <p v-if="erroData" class="text-xs text-red-600 mt-2">
+            A data de fim não pode ser anterior à data de início.
+          </p>
+        </div>
       </div>
 
       <!-- Descrição -->
@@ -112,7 +114,16 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
           </svg>
 
-          {{ isLoading ? 'Criando...' : 'Criar Evento' }}
+          {{ isLoading ? (eventoEdicao ? 'Salvando...' : 'Criando...') : (eventoEdicao ? 'Salvar Alterações' : 'Criar Evento') }}
+        </button>
+
+        <button
+          v-if="eventoEdicao"
+          type="button"
+          @click="$emit('cancelar-edicao')"
+          class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition-all"
+        >
+          Cancelar
         </button>
 
         <button
@@ -160,11 +171,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { criarEventoExterno } from '~/services/evento-api'
+import { ref, onMounted, watch } from 'vue'
+import { criarEventoExterno, atualizarEventoExterno } from '~/services/evento-api'
 import { fetchRegioes } from '~/services/regiao-api'
 import type { Regiao } from '~/types/regiao'
 import type { Usuario } from '~/types/usuario'
+import type { Evento } from '~/types/evento'
+
+const props = defineProps<{
+  eventoEdicao?: Evento | null
+}>()
+
+const emit = defineEmits(['evento-criado', 'cancelar-edicao'])
 
 const formData = ref({
   nome: '',
@@ -186,6 +204,30 @@ onMounted(async () => {
   } catch (error) {
     console.error('Erro ao carregar regiões:', error)
     errorMessage.value = 'Erro ao carregar regiões'
+  }
+
+  if (props.eventoEdicao) {
+    formData.value = {
+      nome: props.eventoEdicao.nome,
+      dataInicio: new Date(props.eventoEdicao.dataInicio).toISOString().slice(0, 16),
+      dataFim: new Date(props.eventoEdicao.dataFim).toISOString().slice(0, 16),
+      descricao: props.eventoEdicao.descricao,
+      regioesIds: props.eventoEdicao.regioes.map(r => r.regiaoId)
+    }
+  }
+})
+
+watch(() => props.eventoEdicao, (novoEvento) => {
+  if (novoEvento) {
+    formData.value = {
+      nome: novoEvento.nome,
+      dataInicio: new Date(novoEvento.dataInicio).toISOString().slice(0, 16),
+      dataFim: new Date(novoEvento.dataFim).toISOString().slice(0, 16),
+      descricao: novoEvento.descricao,
+      regioesIds: novoEvento.regioes.map(r => r.regiaoId)
+    }
+  } else {
+    resetForm()
   }
 })
 
@@ -210,25 +252,30 @@ const submitForm = async () => {
     const eventoData = {
       nome: formData.value.nome,
       descricao: formData.value.descricao,
-      tipo: 'E',
-      regioesIds: formData.value.regioesIds,
-      data: new Date(formData.value.dataInicio),
+      dataInicio: new Date(formData.value.dataInicio),
       dataFim: new Date(formData.value.dataFim),
-      eventoId: 0,
-      usuario: {} as Usuario,
-      indicadores: []
+      regioesIds: formData.value.regioesIds
     }
 
-    await criarEventoExterno(eventoData)
-    successMessage.value = 'Evento criado com sucesso! Verifique a lista de eventos.'
-    resetForm()
+    if (props.eventoEdicao) {
+      await atualizarEventoExterno(props.eventoEdicao.eventoId, eventoData)
+      successMessage.value = 'Evento atualizado com sucesso!'
+    } else {
+      await criarEventoExterno(eventoData)
+      successMessage.value = 'Evento criado com sucesso! Verifique a lista de eventos.'
+    }
+    
+    emit('evento-criado')
+    if (!props.eventoEdicao) {
+      resetForm()
+    }
 
     setTimeout(() => {
       successMessage.value = ''
     }, 5000)
   } catch (error) {
-    console.error('Erro ao criar evento:', error)
-    errorMessage.value = 'Erro ao criar evento. Tente novamente.'
+    console.error('Erro ao salvar evento:', error)
+    errorMessage.value = 'Erro ao salvar evento. Tente novamente.'
   } finally {
     isLoading.value = false
   }

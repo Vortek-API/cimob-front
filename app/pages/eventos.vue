@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-screen">
     <Sidebar />
-    <main class="flex-1 bg-gradient-to-br from-gray-50 to-gray-100 overflow-auto">
+    <main class="flex-1 bg-gradient-to-br from-gray-50 to-gray-100 overflow-y-auto max-h-screen">
       <div class="container mx-auto px-4 py-8">
         <!-- Header -->
         <div class="mb-8">
@@ -50,15 +50,24 @@
         <div class="space-y-6">
           <!-- Criar Evento Tab -->
           <Transition name="fade" mode="out-in">
-            <div v-if="activeTab === 'criar'" key="criar">
-              <EventoExternoForm @evento-criado="onEventoCriado" />
+            <div v-if="activeTab === 'criar'" key="criar" class="max-w-4xl mx-auto">
+              <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 md:p-8">
+                <EventoExternoForm 
+                  :evento-edicao="eventoEdicao"
+                  @evento-criado="onEventoCriado" 
+                  @cancelar-edicao="cancelarEdicao"
+                />
+              </div>
             </div>
           </Transition>
 
           <!-- Listar Eventos Tab -->
           <Transition name="fade" mode="out-in">
             <div v-if="activeTab === 'listar'" key="listar">
-              <EventosExternosList @evento-deletado="onEventoDeletado" />
+              <EventosExternosList 
+                @evento-deletado="onEventoDeletado" 
+                @edit-evento="onEditEvento"
+              />
             </div>
           </Transition>
         </div>
@@ -69,6 +78,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { Evento } from '~/types/evento'
 import Sidebar from '~/components/Sidebar.vue'
 import EventoExternoForm from '~/components/eventos/EventoExternoForm.vue'
 import EventosExternosList from '~/components/eventos/EventosExternosList.vue'
@@ -78,8 +88,20 @@ definePageMeta({
 })
 
 const activeTab = ref('criar')
+const eventoEdicao = ref<Evento | null>(null)
 
 const onEventoCriado = () => {
+  activeTab.value = 'listar'
+  eventoEdicao.value = null
+}
+
+const onEditEvento = (evento: Evento) => {
+  eventoEdicao.value = evento
+  activeTab.value = 'criar'
+}
+
+const cancelarEdicao = () => {
+  eventoEdicao.value = null
   activeTab.value = 'listar'
 }
 

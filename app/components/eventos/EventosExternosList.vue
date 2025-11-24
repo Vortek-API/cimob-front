@@ -79,18 +79,18 @@
           <div class="grid grid-cols-2 gap-4 mb-3 text-sm">
             <div>
               <p class="text-gray-600">Data</p>
-              <p class="font-medium text-gray-900">{{ formatDate(evento.data) }}</p>
+              <p class="font-medium text-gray-900">{{ formatDate(evento.dataInicio) }}</p>
             </div>
             <div>
             </div>
           </div>
 
           <!-- Regiões -->
-          <div v-if="(evento as any).regioes && (evento as any).regioes.length > 0" class="mb-3">
+          <div v-if="evento.regioes && evento.regioes.length > 0" class="mb-3">
             <p class="text-sm text-gray-600 mb-2">Regiões Afetadas</p>
             <div class="flex flex-wrap gap-2">
               <span
-                v-for="regiao in (evento as any).regioes"
+                v-for="regiao in evento.regioes"
                 :key="regiao.regiaoId"
                 class="inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full"
               >
@@ -101,15 +101,6 @@
 
           <!-- Action Buttons -->
           <div class="flex gap-2 pt-3 border-t border-gray-100">
-            <button
-              @click="viewOnMap(evento)"
-              class="flex-1 px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-600 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-            >
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6.553 3.276A1 1 0 0021 20.382V9.618a1 1 0 00-1.447-.894L15 11m0 13V11m0 0L9 7"></path>
-              </svg>
-              Ver no Mapa
-            </button>
             <button
               @click="editEvento(evento)"
               class="flex-1 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-600 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
@@ -129,13 +120,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { listarEventosExternos, deletarEvento } from '~/services/evento-api'
-import type { EventoExterno } from '~/services/evento-api'
+import type { Evento } from '~/types/evento'
 
-const eventos = ref<EventoExterno[]>([])
+const eventos = ref<Evento[]>([])
 const isLoading = ref(false)
 const deletingId = ref<number | null>(null)
 
-const emit = defineEmits(['evento-deletado'])
+const emit = defineEmits(['evento-deletado', 'edit-evento'])
 
 onMounted(() => {
   loadEventos()
@@ -180,14 +171,13 @@ const deleteEvento = async (eventoId: number) => {
   }
 }
 
-const viewOnMap = (evento: EventoExterno) => {
+const viewOnMap = (evento: Evento) => {
   // Implementar navegação para o mapa com foco no evento
   console.log('Ver no mapa:', evento)
 }
 
-const editEvento = (evento: EventoExterno) => {
-  // Implementar edição de evento
-  console.log('Editar evento:', evento)
+const editEvento = (evento: Evento) => {
+  emit('edit-evento', evento)
 }
 </script>
 

@@ -334,7 +334,7 @@ const logsDeUsuario = computed(() =>
 );
 
 const logsEventos = computed(() =>
-  allLogs.value.filter(l => l.tipo === TimelineTipo.EVENTOS).length
+  allLogs.value.filter(l => l.tipo === TimelineTipo.EVENTO).length
 );
 
 
@@ -352,7 +352,7 @@ const getIndicadorColor = (tipo: TimelineTipo): string => {
       return 'bg-cyan-600';
     case TimelineTipo.INDICADOR:
       return 'bg-green-600';
-    case TimelineTipo.EVENTOS:
+    case TimelineTipo.EVENTO:
       return 'bg-amber-600';
     default:
       return 'bg-gray-600';

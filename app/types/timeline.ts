@@ -10,7 +10,7 @@ export interface Timeline {
 export enum TimelineTipo {
   USUARIO = 'USUARIO',
   INDICADOR = 'INDICADOR',
-  EVENTOS = 'EVENTOS',
+  EVENTO = 'EVENTO',
   INDEFINIDO = 'INDEFINIDO',
 }
 

@@ -25,7 +25,7 @@
           <svg class="w-4 h-4 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
           </svg>
-          <span class="font-medium">{{ formatDate(evento.data) }}</span>
+          <span class="font-medium">{{ formatDate(evento.dataInicio) }}</span>
         </div>
         <div class="flex items-center gap-2 text-gray-700">
           <svg class="w-4 h-4 text-orange-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -40,7 +40,7 @@
         <p class="text-xs text-gray-600 font-semibold mb-2 uppercase tracking-wider">Regiões</p>
         <div class="flex flex-wrap gap-1.5">
           <span
-            v-for="regiao in evento.regioes.slice(0, 2)"
+            v-for="regiao in (evento.regioes || []).slice(0, 2)"
             :key="regiao.regiaoId"
             class="inline-block px-2.5 py-1 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 text-xs font-semibold rounded-full border border-blue-200"
           >
@@ -90,10 +90,10 @@
 </template>
 
 <script setup lang="ts">
-import type { EventoExterno } from '~/services/evento-api'
+import type { Evento } from '~/types/evento'
 
 defineProps<{
-  evento: EventoExterno & { regioes?: Array<{ regiaoId: number; nome: string }> }
+  evento: Evento
 }>()
 
 defineEmits(['view-map', 'edit', 'delete'])
