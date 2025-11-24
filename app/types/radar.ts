@@ -10,6 +10,7 @@ export interface Radar {
 }
 
 export interface IndicadorRadar {
+  valor(valor: any): unknown;
   indicador: Indicador
   radarId: string;
 }

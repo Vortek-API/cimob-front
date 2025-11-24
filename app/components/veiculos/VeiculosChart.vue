@@ -3,52 +3,45 @@ import { computed, useTemplateRef, ref, watchEffect } from 'vue'
 import { format } from 'date-fns'
 import { VisXYContainer, VisLine, VisAxis, VisArea, VisCrosshair, VisTooltip } from '@unovis/vue'
 import { useElementSize } from '@vueuse/core'
-import type { Period, Range } from '../../types'
+import type { Range } from '../../types'
 
 const cardRef = useTemplateRef<HTMLElement | null>('cardRef')
 
 // Novo formato: { data, tipoVeiculo, velocidade }
-// Para Veículos, contamos ocorrências por dia (data), independente do tipo neste gráfico simples.
+// Para Veículos, cada leitura vira um ponto ordenado por minuto.
 type ChartPoint = { data: string | Date; tipoVeiculo?: string; velocidade?: number }
-const props = withDefaults(defineProps<{
-  period?: Period
+const props = defineProps<{
+  period?: never
   range?: Range
   dataset?: ChartPoint[]
-}>(), { period: 'daily' })
+}>()
 
 type DataRecord = { date: Date; amount: number }
 
 const { width } = useElementSize(cardRef)
 const data = ref<DataRecord[]>([])
 
-function normalizeDay(d: string | Date) {
-  const dt = new Date(d)
-  return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate())  
-}
-
-// Agrega por dia, contando registros
+// Cada registro vira um ponto; conta acumulada não é usada aqui, só sequência temporal
 watchEffect(() => {
   const items: ChartPoint[] = props.dataset && props.dataset.length ? props.dataset : [
-    { data: new Date('2024-01-01'), tipoVeiculo: 'Carro' },
-    { data: new Date('2024-01-02'), tipoVeiculo: 'Moto' },
-    { data: new Date('2024-01-01'), tipoVeiculo: 'Caminhão' },
-    { data: new Date('2024-01-02'), tipoVeiculo: 'Carro' },
+    { data: new Date('2024-01-01T00:00:00'), tipoVeiculo: 'Carro' },
+    { data: new Date('2024-01-01T00:01:00'), tipoVeiculo: 'Moto' },
+    { data: new Date('2024-01-01T00:02:00'), tipoVeiculo: 'Caminhão' },
+    { data: new Date('2024-01-01T00:03:00'), tipoVeiculo: 'Carro' }
   ]
-  const agg = new Map<number, number>()
-  for (const it of items) {
-    const day = normalizeDay(it.data)
-    const key = day.getTime()
-    agg.set(key, (agg.get(key) || 0) + 1)
-  }
-  const ordered = Array.from(agg.entries()).sort((a, b) => a[0] - b[0])
-  data.value = ordered.map(([ts, amount]) => ({ date: new Date(ts), amount }))
+  data.value = items
+    .map(it => ({
+      date: new Date(it.data),
+      amount: typeof it.velocidade === 'number' ? it.velocidade : 1
+    }))
+    .sort((a, b) => a.date.getTime() - b.date.getTime())
 })
 
 const x = (_: DataRecord, i: number) => i
 const y = (d: DataRecord) => d.amount
 const total = computed(() => data.value.reduce((acc: number, { amount }) => acc + amount, 0))
 const avg = computed(() => data.value.length ? Math.round(total.value / data.value.length) : 0)
-const formatDate = (date: Date): string => ({ daily: format(date, 'd MMM'), weekly: format(date, 'd MMM'), monthly: format(date, 'MMM yyy') }[props.period!])
+const formatDate = (date: Date): string => format(date, 'dd/MM HH:mm')
 const xTicks = (i: number) => (i === 0 || i === data.value.length - 1 || !data.value[i] ? '' : formatDate(data.value[i].date))
 const template = (d: DataRecord) => `${formatDate(d.date)}: ${Math.round(d.amount)}`
 </script>
