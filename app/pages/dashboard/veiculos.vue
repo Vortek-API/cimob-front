@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef, computed, watch } from 'vue'
+import { ref, shallowRef, computed, watch, onMounted } from 'vue'
 import { sub } from 'date-fns'
 import type { Period, Range } from '../../types'
 import { useDashboard } from '../../composables/useDashboard'
@@ -34,10 +34,10 @@ async function pesquisar() {
 
 // Exclusividade entre região e radar
 watch(() => regiaoSelecionada.value, (v) => {
-  if (v != null && selectedRadar.value) selectedRadar.value = null
+  if (v != null) selectedRadar.value = 'all'
 })
 watch(() => selectedRadar.value, (v) => {
-  if (v != null && regiaoSelecionada.value != null) setRegiaoSelecionada(null)
+  if (v != null && v !== 'all' && regiaoSelecionada.value != null) setRegiaoSelecionada(null)
 })
 
 const filtered = computed(() => {
@@ -52,6 +52,11 @@ const filtered = computed(() => {
 
 const radarDisabled = computed(() => regiaoSelecionada.value != null)
 const regiaoDisabled = computed(() => selectedRadar.value != null && selectedRadar.value !== 'all')
+
+onMounted(() => {
+  if (!selectedRadar.value) selectedRadar.value = 'all'
+  pesquisar()
+})
 </script>
 
 <template>
@@ -67,8 +72,8 @@ const regiaoDisabled = computed(() => selectedRadar.value != null && selectedRad
             <UDashboardToolbar>
               <template #left>
                 <div class="flex flex-wrap gap-2">
-                  <FiltersRegionSelect :disabled="regiaoDisabled" />
-                  <FiltersRadarSelect :disabled="radarDisabled" />
+                  <FiltersRegionSelect />
+                  <FiltersRadarSelect />
                 </div>
               </template>
               <template #right>
