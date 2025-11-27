@@ -16,7 +16,7 @@ export default defineNuxtRouteMiddleware((to) => {
           auth.setToken('__DEV_BYPASS__')
           if (!auth.refreshToken) auth.setRefreshToken?.('__DEV_BYPASS__')
         }
-      } catch {}
+      } catch { }
       // Não faz nenhum redirecionamento quando bypass está ativo
       return
     }
@@ -26,6 +26,20 @@ export default defineNuxtRouteMiddleware((to) => {
     // inicializa os tokens do localStorage
     auth.token = localStorage.getItem('token')
     auth.refreshToken = localStorage.getItem('refreshToken')
+
+    // Tenta recuperar o usuário se não estiver definido
+    if (!auth.usuario) {
+      const storedUsuario = localStorage.getItem('usuario')
+      if (storedUsuario) {
+        try {
+          // Usamos usuario.value diretamente ou uma mutation se não quisermos disparar o setter que salva no storage novamente
+          // Mas usar setUsuario é seguro
+          auth.setUsuario(JSON.parse(storedUsuario))
+        } catch (e) {
+          console.error('Erro ao restaurar usuário no middleware:', e)
+        }
+      }
+    }
 
     // se precisa de login e não está autenticado
     if (to.meta.requiresAuth && !auth.isAuthenticated) {

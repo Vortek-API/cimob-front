@@ -112,49 +112,48 @@ function logout() {
 }
 
 // 🧭 Menu de navegação
-const items: NavigationMenuItem[] = [
-  {
-    label: 'Home',
-    icon: 'i-lucide-house',
-    to: '/home',
-  },
-  {
-    label: 'Mapas',
-    icon: 'i-lucide-map-pin-check-inside',
-    to: '/map',
-  },
-  {
-    label: 'Eventos',
-    icon: 'i-lucide-calendar',
-    to: '/eventos',
-  },
-  {
-    label: 'Dashboard',
-    icon: 'i-lucide-chart-no-axes-combined',
-    defaultOpen: true,
-    children: [
-      { label: 'Velocidades Registradas', to: '/dashboard/velocidade' },
-      { label: 'Tipos de Veículos', to: '/dashboard/veiculos' },
-    ],
-  }
-]
+const items = computed<NavigationMenuItem[]>(() => {
+  const baseItems: NavigationMenuItem[] = [
+    {
+      label: 'Home',
+      icon: 'i-lucide-house',
+      to: '/home',
+    },
+    {
+      label: 'Mapas',
+      icon: 'i-lucide-map-pin-check-inside',
+      to: '/map',
+    },
+    {
+      label: 'Dashboard',
+      icon: 'i-lucide-chart-no-axes-combined',
+      defaultOpen: true,
+      children: [
+        { label: 'Velocidades Registradas', to: '/dashboard/velocidade' },
+        { label: 'Tipos de Veículos', to: '/dashboard/veiculos' },
+      ],
+    }
+  ]
 
-if(auth.isAdmin) {
-  items.push({
-    label: 'Administrador',
-    icon: 'i-lucide-shield',
-    defaultOpen: false,
-    children: [
-      { label: 'Logs', to: '/admin/logs' },
-      { label: 'Acessos', to: '/admin/acessos' },
-    ],
-    show: computed(() => auth.isAdmin),
-  })
-}
+  if (auth.isAdmin) {
+    baseItems.push({
+      label: 'Administrador',
+      icon: 'i-lucide-shield',
+      defaultOpen: false,
+      children: [
+        { label: 'Logs', to: '/admin/logs' },
+        { label: 'Acessos', to: '/admin/acessos' },
+        { label: 'Eventos', to: '/eventos'},
+      ],
+    })
+  }
+
+  return baseItems
+})
 
 // Filter visible items (handles boolean, computed refs or functions)
 const visibleItems = computed(() => {
-  return items.filter((i) => {
+  return items.value.filter((i) => {
     const s: any = (i as any).show
     if (s === undefined) return true
     if (typeof s === 'boolean') return s

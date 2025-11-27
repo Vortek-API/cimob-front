@@ -17,6 +17,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const setUsuario = (value: Usuario) => {
     usuario.value = value
+    if (typeof window !== 'undefined') localStorage.setItem('usuario', JSON.stringify(value))
   }
 
   const setRefreshToken = (value: string) => {
@@ -27,10 +28,30 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = () => {
     token.value = null
     refreshToken.value = null
-    usuario.value = null // ADICIONADO: Limpar o usuário no logout
+    usuario.value = null
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token')
       localStorage.removeItem('refreshToken')
+      localStorage.removeItem('usuario')
+    }
+  }
+
+  // Initialize from localStorage
+  if (typeof window !== 'undefined') {
+    const storedToken = localStorage.getItem('token')
+    if (storedToken) token.value = storedToken
+
+    const storedRefreshToken = localStorage.getItem('refreshToken')
+    if (storedRefreshToken) refreshToken.value = storedRefreshToken
+
+    const storedUsuario = localStorage.getItem('usuario')
+    if (storedUsuario) {
+      try {
+        usuario.value = JSON.parse(storedUsuario)
+      } catch (e) {
+        console.error('Erro ao recuperar usuário do localStorage:', e)
+        localStorage.removeItem('usuario')
+      }
     }
   }
 

@@ -1,22 +1,21 @@
 <template>
-  <div class="w-full px-4 py-8">
-    <div class="max-w-[1600px] mx-auto">
+  <div class="w-full px-4 py-6">
+    <div class="max-w-[1400px] mx-auto">
       <!-- Título -->
-      <div class="text-center mb-12">
-        <h1 class="text-5xl font-bold text-slate-800 mb-3">Distritos de São José dos Campos</h1>
-        <p class="text-xl text-slate-600">Mapa Interativo - Clique nos distritos para mais informações</p>
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-slate-800 mb-2">Distritos de São José dos Campos</h1>
+        <p class="text-base text-slate-600">Mapa Interativo - Clique nos distritos para mais informações</p>
       </div>
 
-      <div class="grid grid-cols-1 xl:grid-cols-[1fr_450px] gap-12 items-start mb-12">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch mb-8">
         <!-- Coluna 1: Mapa Real -->
-        <div class="w-full">
-          <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-3xl shadow-xl border border-slate-200 p-10">
-            <div class="relative max-w-[800px] mx-auto">
+        <div class="w-full h-full">
+          <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl shadow-lg border border-slate-200 p-4 h-full flex items-center justify-center">
+            <div class="relative w-full max-w-[450px]">
               <img
                 src="/images/mapaSjc.png"
-                
                 alt="Mapa dos Distritos de São José dos Campos"
-                class="w-full h-auto rounded-2xl shadow-lg"
+                class="w-full h-auto rounded-xl shadow-md"
               />
               
               <!-- Áreas clicáveis sobre o mapa -->
@@ -26,7 +25,6 @@
                   @click="selecionarDistrito('sjc')"
                   class="absolute cursor-pointer transition-all duration-300 hover:scale-110"
                   style="top: 45%; left: 30%; width: 35%; height: 40%;"
-            
                   title="São José dos Campos"
                 ></div>
 
@@ -34,7 +32,10 @@
                 <div
                   @click="selecionarDistrito('sfx')"
                   class="absolute cursor-pointer transition-all duration-300 hover:scale-110"
-                  style="top: 15%; left: 35%; width: 40%; height: 30%;"
+                  style=" top: 10%;
+                          left: 35%;
+                          width: 20%;
+                          height: 30%;"
                   title="São Francisco Xavier"
                 ></div>
 
@@ -42,7 +43,10 @@
                 <div
                   @click="selecionarDistrito('edm')"
                   class="absolute cursor-pointer transition-all duration-300 hover:scale-110"
-                  style="top: 35%; right: 15%; width: 25%; height: 35%;"
+                  style="top: 60%;
+                        width: 10%;
+                        height: 10%;
+                        right: 15%;"
                   title="Eugênio de Melo"
                 ></div>
               </div>
@@ -50,92 +54,84 @@
           </div>
         </div>
 
-        <!-- Coluna 2: Controles, Legenda e Indicadores -->
-        <div class="w-full space-y-8">
-          <!-- Controles -->
-          <div class="flex flex-col gap-4">
-            <div class="w-full">
-              <MenuRegiao />
-            </div>
-            <button
-              v-if="auth.isAdmin"
-              @click="abrirModal"
-              class="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl hover:-translate-y-1"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-              </svg>
-              <span>Novo Indicador</span>
-            </button>
-          </div>
-          
-          <!-- Modal -->
-          <ModalCriarIndicador
-            v-if="isModalAberto"
-            @fechar="fecharModal"
-            @salvar="salvarNovoIndicador"
-          />
-
+        <!-- Coluna 2: Informações do Distrito -->
+        <div class="w-full h-full">
           <!-- Legenda Interativa -->
-          <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8">
-            <h2 class="text-3xl font-bold text-slate-800 mb-6 pb-4 border-b-4 border-blue-600">Distritos</h2>
+          <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-5 h-full flex flex-col justify-center">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b-2 border-blue-600">Distritos</h2>
             
             <div 
               v-for="distrito in distritos" 
               :key="distrito.id"
               @click="selecionarDistrito(distrito.id)"
-              class="flex items-center mb-4 p-5 rounded-2xl transition-all duration-300 cursor-pointer border-3"
+              class="flex items-center mb-3 p-3 rounded-lg transition-all duration-300 cursor-pointer border"
               :class="{ 
-                'bg-blue-50 border-blue-600 shadow-md': distritoAtivo === distrito.id,
+                'bg-blue-50 border-blue-600 shadow-sm': distritoAtivo === distrito.id,
                 'bg-slate-50 border-transparent hover:bg-slate-100 hover:border-slate-300': distritoAtivo !== distrito.id
               }"
-              style="border-width: 3px;"
             >
               <div 
-                class="w-12 h-12 rounded-xl mr-5 shadow-md border-3 border-white flex-shrink-0"
+                class="w-8 h-8 rounded mr-3 shadow-sm border border-white flex-shrink-0"
                 :style="{ background: distrito.cor }"
               ></div>
               <div class="flex-1">
-                <div class="font-bold text-slate-800 text-lg">{{ distrito.nome }}</div>
-                <div class="text-sm text-slate-600">{{ distrito.info }}</div>
+                <div class="font-bold text-slate-800 text-sm">{{ distrito.nome }}</div>
               </div>
             </div>
 
-                   <!-- PAINEL INFO DISTRITO (novo estilo neutro) -->
-            <div class="bg-slate-100 text-slate-800 p-6 rounded-2xl shadow-inner mt-8 border border-slate-300">
-              <h3 class="text-2xl font-bold mb-3 pb-2 border-b border-slate-300">
+            <!-- PAINEL INFO DISTRITO -->
+            <div class="bg-slate-50 text-slate-800 p-4 rounded-xl shadow-inner mt-4 border border-slate-200 flex-grow">
+              <h3 class="text-lg font-bold mb-2 pb-1 border-b border-slate-300">
                 {{ distritoSelecionado.nome }}
               </h3>
 
-              <p class="text-base mb-6 text-slate-700">
+              <p class="text-xs mb-4 text-slate-600 leading-relaxed">
                 {{ distritoSelecionado.descricao }}
               </p>
 
-              <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white p-4 rounded-xl text-center shadow border border-slate-200">
-                  <div class="text-sm text-slate-500">População</div>
-                  <div class="text-2xl font-bold">{{ distritoSelecionado.populacao }}</div>
+              <div class="grid grid-cols-2 gap-3 mt-auto">
+                <div class="bg-white p-2 rounded-lg text-center shadow-sm border border-slate-200">
+                  <div class="text-[10px] text-slate-500 uppercase tracking-wide">População</div>
+                  <div class="text-sm font-bold text-slate-800">{{ distritoSelecionado.populacao }}</div>
                 </div>
 
-                <div class="bg-white p-4 rounded-xl text-center shadow border border-slate-200">
-                  <div class="text-sm text-slate-500">Área</div>
-                  <div class="text-2xl font-bold">{{ distritoSelecionado.area }}</div>
+                <div class="bg-white p-2 rounded-lg text-center shadow-sm border border-slate-200">
+                  <div class="text-[10px] text-slate-500 uppercase tracking-wide">Área</div>
+                  <div class="text-sm font-bold text-slate-800">{{ distritoSelecionado.area }}</div>
                 </div>
-              </div>
-
-              <div class="mt-5 pt-4 border-t border-slate-300 text-sm">
-                <span class="font-semibold text-slate-700">Características:</span>
-                <p class="text-base mt-1">{{ distritoSelecionado.caracteristicas }}</p>
               </div>
             </div>
           </div>
-          
-
         </div>
       </div>
       
-      <!-- Componente Indicadores em largura total -->
-      <div class="w-full">
+      <!-- Seção de Indicadores e Controles -->
+      <div class="w-full space-y-6">
+        <!-- Controles (Filtro e Botão) -->
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+          <div class="w-full md:w-auto flex-1">
+            <MenuRegiao />
+          </div>
+          <button
+            v-if="auth.isAdmin"
+            @click="abrirModal"
+            class="w-full md:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl shadow-md transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span>Novo Indicador</span>
+          </button>
+        </div>
+
+        <!-- Modal -->
+        <ModalCriarIndicador
+          v-if="isModalAberto"
+          @fechar="fecharModal"
+          @salvar="salvarNovoIndicador"
+        />
+
+        <!-- Componente Indicadores -->
         <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8">
           <ComponenteIndicadores />
         </div>

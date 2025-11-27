@@ -200,43 +200,6 @@ function getColorClassForValor(valor: number | null | undefined) {
   return 'text-gray-700'
 }
 
-// CORREÇÃO: Função auxiliar para atualizar o conteúdo do popup (necessária para o click do mapa)
-function updatePopupContent(coordinates: [number, number], radarId: string, indicadores: IndicadorRadar[]) {
-  if (!map.value) return
-
-  activePopup.value?.remove()
-
-  setTimeout(() => {
-    const popupContent = document.createElement('div')
-    popupContent.className = 'p-2'
-    
-    let htmlContent = `<h4 class="text-base font-bold text-gray-900 mb-2">Radar: ${radarId}</h4>`
-
-    if (indicadores.length === 0) {
-      htmlContent += '<p class="text-sm text-gray-600">Nenhum indicador encontrado para este radar.</p>'
-    } else {
-      htmlContent += '<ul class="space-y-1">'
-      indicadores.forEach(ind => {
-        const colorClass = getColorClassForValor(ind.indicador?.valor)
-        htmlContent += `
-          <li class="flex justify-between items-center text-sm">
-            <span class="text-gray-600">${ind.indicador}:</span>
-            <span class="font-semibold ${colorClass}">${ind.radarId?.fixed() ?? 'N/A'}</span>
-          </li>
-        `
-      })
-      htmlContent += '</ul>'
-    }
-
-    popupContent.innerHTML = htmlContent
-
-    activePopup.value = new Popup({ offset: 25 })
-      .setLngLat(coordinates)
-      .setDOMContent(popupContent)
-      .addTo(map.value!)
-  }, 0)
-}
-
 async function loadMapIcons(icons: { path: string; name: string }[]): Promise<void> {
   if (!map.value) return;
 
@@ -257,6 +220,8 @@ async function loadMapIcons(icons: { path: string; name: string }[]): Promise<vo
   }
 }
 
+const activeEventsList = ref<Evento[]>([])
+
 async function loadActiveEvents() {
   try {
     const eventos: Evento[] = await listarEventos()
@@ -264,7 +229,8 @@ async function loadActiveEvents() {
     
     // Limpa o set de regiões ativas
     activeEventRegions.value.clear()
-    
+    activeEventsList.value = []
+
     // Verifica quais eventos estão ativos agora
     eventos.forEach(evento => {
       const dataInicio = new Date(evento.dataInicio)
@@ -272,6 +238,7 @@ async function loadActiveEvents() {
       
       // Se o evento está ativo (entre data de início e fim)
       if (now >= dataInicio && now <= dataFim) {
+        activeEventsList.value.push(evento)
         // Adiciona todas as regiões deste evento ao set
         evento.regioes.forEach(regiao => {
           activeEventRegions.value.add(regiao.regiaoId)
@@ -283,6 +250,73 @@ async function loadActiveEvents() {
   } catch (error) {
     console.error('Erro ao carregar eventos ativos:', error)
   }
+}
+
+// CORREÇÃO: Função auxiliar para atualizar o conteúdo do popup (necessária para o click do mapa)
+function updatePopupContent(coordinates: [number, number], radarId: string, regiaoId: number, indicadores: IndicadorRadar[]) {
+  if (!map.value) return
+
+  activePopup.value?.remove()
+
+  setTimeout(() => {
+    const popupContent = document.createElement('div')
+    popupContent.className = 'p-2 max-w-xs'
+    
+    let htmlContent = `<h4 class="text-base font-bold text-gray-900 mb-2">Radar: ${radarId}</h4>`
+
+    // Seção de Indicadores
+    if (indicadores.length > 0) {
+      htmlContent += '<div class="mb-3"><h5 class="text-xs font-bold text-gray-500 uppercase mb-1">Indicadores</h5><ul class="space-y-1">'
+      indicadores.forEach(ind => {
+        const colorClass = getColorClassForValor(ind.indicador?.valor)
+        htmlContent += `
+          <li class="flex justify-between items-center text-sm">
+            <span class="text-gray-600">${ind.indicador.nome}:</span>
+            <span class="font-semibold ${colorClass}">${ind.indicador.valor ?? 'N/A'}</span>
+          </li>
+        `
+      })
+      htmlContent += '</ul></div>'
+    } else {
+      htmlContent += '<p class="text-sm text-gray-600 mb-3">Nenhum indicador encontrado.</p>'
+    }
+
+    // Seção de Eventos
+    const eventosRegiao = activeEventsList.value.filter(e => e.regioes.some(r => r.regiaoId === regiaoId))
+    
+    if (eventosRegiao.length > 0) {
+      htmlContent += '<div class="pt-2 border-t border-gray-200"><h5 class="text-xs font-bold text-purple-600 uppercase mb-1">Eventos Ativos</h5><ul class="space-y-2">'
+      eventosRegiao.forEach(evento => {
+        const formatData = (val: Date | string) => {
+          const d = new Date(val)
+          const data = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+          const hora = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+          return `${data} às ${hora}`
+        }
+
+        const inicio = formatData(evento.dataInicio)
+        const fim = formatData(evento.dataFim)
+        
+        htmlContent += `
+          <li class="text-sm bg-purple-50 p-2 rounded border border-purple-100">
+            <p class="text-xs text-purple-700 mt-1 font-medium">
+              ${inicio} até ${fim}
+            </p>
+            <p class="font-semibold text-purple-900 text-xs">${evento.nome}</p>
+            <p class="text-gray-600 text-xs mt-0.5 line-clamp-2">${evento.descricao}</p>
+          </li>
+        `
+      })
+      htmlContent += '</ul></div>'
+    }
+
+    popupContent.innerHTML = htmlContent
+
+    activePopup.value = new Popup({ offset: 25, maxWidth: '300px' })
+      .setLngLat(coordinates)
+      .setDOMContent(popupContent)
+      .addTo(map.value!)
+  }, 0)
 }
 
 
@@ -328,6 +362,7 @@ async function loadMapData() {
     if (e.features && e.features.length > 0) {
       const feature = e.features[0]
       const radarId = feature!.properties?.id
+      const regiaoId = feature!.properties?.regiaoId
       const coordinates = (feature!.geometry as Point).coordinates as [number, number]
 
       if (radarId) {
@@ -335,10 +370,10 @@ async function loadMapData() {
         try {
           const indicadores = await fetchIndicadoresPorRadar(radarId)
           radarIndicators.value = indicadores
-          updatePopupContent(coordinates, radarId, indicadores)
+          updatePopupContent(coordinates, radarId, regiaoId, indicadores)
         } catch (error) {
           console.error('Erro ao buscar indicadores:', error)
-          updatePopupContent(coordinates, radarId, [])
+          updatePopupContent(coordinates, radarId, regiaoId, [])
         } finally {
           isFetchingIndicators.value = false
         }
@@ -346,19 +381,13 @@ async function loadMapData() {
     }
   })
 
-  // Adiciona listeners de click para pontos
-  map.value.on('click', 'pontos-layer', (e) => {
-    if (e.features && e.features.length > 0) {
-      const feature = e.features[0]
-      const nome = feature!.properties?.nome || 'Ponto de Ônibus'
-      const coordinates = (feature!.geometry as Point).coordinates as [number, number]
+  // Change cursor to pointer when hovering over radars
+  map.value.on('mouseenter', 'radars-layer', () => {
+    map.value!.getCanvas().style.cursor = 'pointer'
+  })
 
-      activePopup.value?.remove()
-      activePopup.value = new Popup({ offset: 25 })
-        .setLngLat(coordinates)
-        .setHTML(`<h4 class="text-base font-bold text-gray-900">${nome}</h4><p class="text-sm text-gray-600">Ponto de ônibus</p>`)
-        .addTo(map.value!)
-    }
+  map.value.on('mouseleave', 'radars-layer', () => {
+    map.value!.getCanvas().style.cursor = ''
   })
 
   // Atualiza ícones com base nos indicadores iniciais
